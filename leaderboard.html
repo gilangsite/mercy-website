@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - INC Mercy 2026</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-blue-saturated) 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .leaderboard-table tr:nth-child(even) {
+            background-color: var(--color-gray-light);
+        }
+
+        .leaderboard-table tr:hover {
+            background-color: #eff6ff;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 700;
+            background: var(--color-gray-medium);
+            color: var(--color-gray-dark);
+        }
+
+        .rank-1 {
+            background: #FFD700;
+            color: #744210;
+        }
+
+        .rank-2 {
+            background: #C0C0C0;
+            color: #3F3F46;
+        }
+
+        .rank-3 {
+            background: #CD7F32;
+            color: #7C2D12;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 2rem;
+            color: var(--color-gray-dark);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar (Simplified) -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-logo">MERCY 2026</a>
+            <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Kembali ke Home</a>
+        </div>
+    </nav>
+
+    <!-- Leaderboard Section -->
+    <section class="section" style="padding-top: 100px; min-height: 100vh;">
+        <div class="container" style="max-width: 800px;">
+            <div class="text-center mb-4">
+                <i class="fas fa-trophy" style="font-size: 3rem; color: #FFD700; margin-bottom: 1rem;"></i>
+                <h2>Leaderboard Sementara</h2>
+                <p>Peringkat diupdate secara Real Time</p>
+            </div>
+
+            <div id="leaderboardContainer">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th width="80">Rank</th>
+                            <th>Nama Peserta</th>
+                            <th width="100">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+                <div id="loading" class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Memuat data...
+                </div>
+            </div>
+
+            <div class="text-center mt-3" style="font-size: 0.9rem; color: var(--color-gray-dark);">
+                <i class="fas fa-info-circle"></i> Nilai tidak ditampilkan untuk menjaga kerahasiaan skor.
+            </div>
+        </div>
+    </section>
+
+    <script src="js/leaderboard.js"></script>
+</body>
+
+</html>

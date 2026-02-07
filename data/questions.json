@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "question": "Seorang laki-laki berusia 50 tahun datang dengan keluhan nyeri dada kiri yang menjalar ke lengan kiri. Nyeri dirasakan seperti tertindih beban berat. Pemeriksaan EKG menunjukkan elevasi segmen ST di lead II, III, dan aVF. Diagnosis yang paling mungkin adalah?",
+        "options": {
+            "A": "STEMI Anterior",
+            "B": "STEMI Inferior",
+            "C": "STEMI Lateral",
+            "D": "NSTEMI",
+            "E": "Angina Pektoris Stabil"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 2,
+        "question": "Bakteri penyebab utama faringitis streptokokus adalah?",
+        "options": {
+            "A": "Staphylococcus aureus",
+            "B": "Streptococcus pneumoniae",
+            "C": "Streptococcus pyogenes",
+            "D": "Haemophilus influenzae",
+            "E": "Corynebacterium diphtheriae"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 3,
+        "question": "Lapisan meninges yang paling luar dan tebal disebut?",
+        "options": {
+            "A": "Pia mater",
+            "B": "Arachnoid mater",
+            "C": "Dura mater",
+            "D": "Subarachnoid space",
+            "E": "Epidural space"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 4,
+        "question": "Enzim yang berperan mengubah angiotensin I menjadi angiotensin II terutama diproduksi di?",
+        "options": {
+            "A": "Hati",
+            "B": "Ginjal",
+            "C": "Paru-paru",
+            "D": "Jantung",
+            "E": "Pankreas"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 5,
+        "question": "Obat anti-tuberkulosis (OAT) yang memiliki efek samping utama neuritis optik adalah?",
+        "options": {
+            "A": "Isoniazid",
+            "B": "Rifampisin",
+            "C": "Pirazinamid",
+            "D": "Etambutol",
+            "E": "Streptomisin"
+        },
+        "correct": "D"
+    }
+]

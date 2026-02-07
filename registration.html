@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran INC - Mercy 2026</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Navbar (Simplified) -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-logo">MERCY 2026</a>
+            <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Kembali ke Home</a>
+        </div>
+    </nav>
+
+    <!-- Registration Section -->
+    <section class="section" style="padding-top: 100px; min-height: 100vh; display: flex; align-items: center;">
+        <div class="container">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h2 class="text-center" style="margin-bottom: 5px;">Pendaftaran INC</h2>
+                <p class="text-center mb-3">Iseng Ngetest Competition Mercy 2026</p>
+
+                <div id="registrationState">
+                    <form id="registrationForm">
+                        <div class="form-group">
+                            <label for="regName" class="form-label">Nama Lengkap</label>
+                            <input type="text" id="regName" name="nama" class="form-input"
+                                placeholder="Contoh: Budi Santoso" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regEmail" class="form-label">Alamat Email</label>
+                            <input type="email" id="regEmail" name="email" class="form-input"
+                                placeholder="email@contoh.com" required>
+                            <small style="color: var(--color-gray-dark);">Gunakan email aktif untuk login Iseng Ngetest
+                                Competition nanti.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regInst" class="form-label">Nama Universitas</label>
+                            <input type="text" id="regInst" name="institusi" class="form-input"
+                                placeholder="Contoh: Universitas Indonesia" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regIg" class="form-label">Username Instagram</label>
+                            <input type="text" id="regIg" name="instagram" class="form-input"
+                                placeholder="Contoh: medtools.id" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regSemester" class="form-label">Semester</label>
+                            <select id="regSemester" name="semester" class="form-select" required>
+                                <option value="" disabled selected>Pilih Semester</option>
+                                <option value="Maba">Maba</option>
+                                <option value="Semester 2">Semester 2</option>
+                                <option value="Semester 3">Semester 3</option>
+                                <option value="Semester 4">Semester 4</option>
+                                <option value="Semester 5">Semester 5</option>
+                                <option value="Semester 6">Semester 6</option>
+                                <option value="Semester 7">Semester 7</option>
+                                <option value="Semester 8">Semester 8</option>
+                                <option value="Non FK">Non FK</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regWa" class="form-label">Nomor WhatsApp</label>
+                            <input type="tel" id="regWa" name="whatsapp" class="form-input"
+                                placeholder="Contoh: 081234567890" required>
+                        </div>
+
+                        <div class="form-group" style="display: flex; align-items: flex-start; gap: 10px;">
+                            <input type="checkbox" id="regCheck" required style="margin-top: 5px;">
+                            <label for="regCheck" style="font-size: 0.9rem; color: var(--color-gray-dark);">
+                                Saya menyatakan data di atas benar dan bersedia mengikuti aturan kompetisi INC Mercy
+                                2026.
+                            </label>
+                        </div>
+
+                        <div id="formMessage" class="mb-2"></div>
+
+                        <button type="submit" id="btnSubmit" class="btn btn-primary" style="width: 100%;">
+                            DAFTAR SEKARANG
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Success State (Hidden by default) -->
+                <div id="successState" class="hidden text-center">
+                    <div style="font-size: 4rem; color: #10B981; margin-bottom: 20px;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Pendaftaran Berhasil!</h3>
+                    <p class="mb-3">Terima kasih sudah mendaftar INC Mercy 2026. Email konfirmasi telah dikirim ke inbox
+                        kamu.</p>
+
+                    <div
+                        style="background: var(--color-gray-light); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 10px;">Langkah Selanjutnya:</h4>
+                        <p>Wajib bergabung ke grup WhatsApp peserta untuk informasi teknis, jadwal, dan link kompetisi.
+                        </p>
+                    </div>
+
+                    <a href="https://chat.whatsapp.com/F4yp7SWVeoeEFv3UDYAtty" target="_blank"
+                        class="btn btn-whatsapp btn-lg" style="width: 100%; margin-bottom: 10px;">
+                        <i class="fab fa-whatsapp"></i> Join Grup Mercy 2026
+                    </a>
+                    <a href="index.html" class="btn btn-secondary" style="width: 100%;">Kembali ke Home</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/registration.js"></script>
+</body>
+
+</html>
