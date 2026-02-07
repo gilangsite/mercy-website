@@ -41,9 +41,22 @@ async function handleRegistration(e) {
     };
 
     try {
+        // --- ADDED CHECK FOR DUPLICATE EMAIL ---
+        const checkResponse = await fetch(APPS_SCRIPT_URL + '?action=check_email&email=' + encodeURIComponent(data.email));
+        const checkResult = await checkResponse.json();
+
+        if (checkResult.exists) {
+            messageDiv.textContent = 'Email sudah terdaftar pada sistem Mercy, mohon masukkan email baru.';
+            messageDiv.className = 'form-error mb-2';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'DAFTAR SEKARANG';
+            return; // Stop registration
+        }
+
+        // Proceed with registration if email is unique
         const response = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // Important for Apps Script
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
