@@ -8,9 +8,10 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1_17nAVrjJ0rc
 const QUIZ_DURATION_MINUTES = 60;
 
 let quizState = {
+    name: '', // Display name for leaderboard
     email: '',
     questions: [],
-    answers: {}, // { questionId: "A" }
+    answers: {},
     currentQuestionIndex: 0,
     startTime: null,
     timerInterval: null
@@ -29,6 +30,7 @@ function initLogin() {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value;
+        const name = document.getElementById('loginName').value;
         const btn = document.getElementById('btnLogin');
         const msg = document.getElementById('loginMessage');
 
@@ -41,8 +43,9 @@ function initLogin() {
             const response = await fetch(APPS_SCRIPT_URL + '?action=check_email&email=' + encodeURIComponent(email));
             const result = await response.json();
 
-            if (result.exists || email === 'mercy.medtools@gmail.com') { // Admin override
+            if (result.exists || email === 'medtools.mercy@gmail.com') { // Admin override
                 quizState.email = email;
+                quizState.name = name; // Save the name entered for leaderboard
                 startQuiz();
             } else {
                 msg.textContent = 'Email belum terdaftar. Silakan daftar INC terlebih dahulu.';
@@ -247,8 +250,9 @@ async function finishQuiz(auto = false) {
     const payload = {
         action: 'submit_quiz',
         email: quizState.email,
+        name: quizState.name, // Send the entered name
         answers: quizState.answers,
-        score: finalScore, // In real app, calculate on backend!
+        score: finalScore,
         timestamp: new Date().toISOString()
     };
 
