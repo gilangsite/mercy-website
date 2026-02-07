@@ -32,8 +32,12 @@
                     MULAI KOMPETISI
                 </button>
             </form>
-            <div class="text-center mt-2">
+            <div class="text-center mt-3"
+                style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
                 <a href="registration.html" style="font-size: 0.9rem;">Belum daftar? Daftar di sini</a>
+                <a href="index.html" class="btn btn-secondary btn-sm" style="width: auto; min-width: 150px;">
+                    <i class="fas fa-door-open"></i> Kembali ke Home
+                </a>
             </div>
         </div>
     </div>
@@ -70,7 +74,9 @@
                     <span id="timerDisplay">60:00</span>
                 </div>
 
-                <button id="btnFinish" class="btn btn-primary btn-sm">Selesai</button>
+                <button id="btnFinish" class="btn btn-primary btn-sm btn-mobile-icon-only">
+                    <i class="fas fa-check"></i> <span class="btn-text">Selesai</span>
+                </button>
             </header>
 
             <!-- Question Area -->
@@ -86,12 +92,12 @@
                     </div>
                 </div>
 
-                <div class="quiz-controls">
-                    <button id="btnPrev" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Sebelumnya
+                <div class="quiz-controls btn-group" style="justify-content: space-between;">
+                    <button id="btnPrev" class="btn btn-secondary btn-mobile-icon-only">
+                        <i class="fas fa-arrow-left"></i> <span class="btn-text">Sebelumnya</span>
                     </button>
-                    <button id="btnNext" class="btn btn-secondary">
-                        Selanjutnya <i class="fas fa-arrow-right"></i>
+                    <button id="btnNext" class="btn btn-secondary btn-mobile-icon-only">
+                        <span class="btn-text">Selanjutnya</span> <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
