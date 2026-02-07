@@ -60,12 +60,25 @@ function initLogin() {
             }
         } catch (error) {
             console.error(error);
-            msg.textContent = 'Terjadi kesalahan sistem.';
-            msg.className = 'form-error mb-2';
-            btn.disabled = false;
-            btn.textContent = 'MULAI KOMPETISI';
         }
     });
+
+    // Sidebar Toggles
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('quizSidebar');
+
+    if (toggleSidebar && sidebar) {
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    if (closeSidebar && sidebar) {
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+        });
+    }
 }
 
 // --- Quiz Core Logic ---
@@ -98,7 +111,13 @@ function setupNavigation() {
         const btn = document.createElement('button');
         btn.className = 'q-nav-btn';
         btn.textContent = index + 1;
-        btn.onclick = () => loadQuestion(index);
+        btn.addEventListener('click', () => {
+            loadQuestion(index);
+            // On mobile, close sidebar after selecting a question
+            if (window.innerWidth <= 768) {
+                document.getElementById('quizSidebar').classList.remove('active');
+            }
+        });
         btn.id = `nav-btn-${index}`;
         navContainer.appendChild(btn);
     });
