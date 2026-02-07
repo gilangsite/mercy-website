@@ -30,30 +30,51 @@ async function handleRegistration(e) {
 
     // Get Data
     const formData = new FormData(e.target);
+    const whatsappValue = formData.get('whatsapp');
+
+    // Extra Validation for WhatsApp (Numbers only)
+    if (!/^\d+$/.test(whatsappValue)) {
+        messageDiv.textContent = 'Nomor WhatsApp harus berupa angka saja.';
+        messageDiv.className = 'form-error mb-2';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'DAFTAR SEKARANG';
+        return;
+    }
+
     const data = {
         action: 'register',
         nama: formData.get('nama'),
-        email: formData.get('email'),
-        institusi: formData.get('institusi'), // Field renamed to "Nama Universitas" in UI but kept "institusi" key for consistency or can change to university
+        email: formData.get('email').trim().toLowerCase(), // Normalize email
+        institusi: formData.get('institusi'),
         instagram: formData.get('instagram'),
         semester: formData.get('semester'),
-        whatsapp: formData.get('whatsapp')
+        whatsapp: whatsappValue
     };
 
     try {
-        // --- ADDED CHECK FOR DUPLICATE EMAIL ---
-        const checkResponse = await fetch(APPS_SCRIPT_URL + '?action=check_email&email=' + encodeURIComponent(data.email));
+        console.log('Checking email existence for:', data.email);
+
+        // --- STRENGTHENED PRE-CHECK ---
+        // Using a timestamp to avoid any potential caching
+        const checkUrl = APPS_SCRIPT_URL + '?action=check_email&email=' + encodeURIComponent(data.email) + '&t=' + Date.now();
+        const checkResponse = await fetch(checkUrl);
+
+        if (!checkResponse.ok) {
+            throw new Error('Gagal melakukan validasi email ke server.');
+        }
+
         const checkResult = await checkResponse.json();
+        console.log('Pre-check result:', checkResult);
 
         if (checkResult.exists) {
             messageDiv.textContent = 'Email sudah terdaftar pada sistem Mercy, mohon masukkan email baru.';
             messageDiv.className = 'form-error mb-2';
             submitBtn.disabled = false;
             submitBtn.textContent = 'DAFTAR SEKARANG';
-            return; // Stop registration
+            return;
         }
 
-        // Proceed with registration if email is unique
+        // Proceed if email is not found
         const response = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -63,18 +84,16 @@ async function handleRegistration(e) {
             body: JSON.stringify(data)
         });
 
-        // Mode 'no-cors' will always return an opaque response with status 0, 
-        // which means we can't check 'response.ok' or see the JSON.
-        // For Apps Script production, we assume success if no error is thrown.
-
         // Show success state
         formContainer.classList.add('hidden');
         successContainer.classList.remove('hidden');
 
-        // Save to local storage for quick access detection (UI only)
+        // UI only: track locally
         const registeredUsers = JSON.parse(localStorage.getItem('mercy_users') || '[]');
-        registeredUsers.push(data.email);
-        localStorage.setItem('mercy_users', JSON.stringify(registeredUsers));
+        if (!registeredUsers.includes(data.email)) {
+            registeredUsers.push(data.email);
+            localStorage.setItem('mercy_users', JSON.stringify(registeredUsers));
+        }
 
     } catch (error) {
         console.error('Registration Error:', error);
