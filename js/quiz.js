@@ -43,9 +43,14 @@ function initLogin() {
             const response = await fetch(APPS_SCRIPT_URL + '?action=check_email&email=' + encodeURIComponent(email));
             const result = await response.json();
 
-            if (result.exists || email === 'medtools.mercy@gmail.com') { // Admin override
+            if (result.submitted && email !== 'medtools.mercy@gmail.com') {
+                msg.textContent = 'Anda sudah pernah mengerjakan kompetisi ini. 1 Email hanya diperbolehkan 1 kali submit.';
+                msg.className = 'form-error mb-2';
+                btn.disabled = false;
+                btn.textContent = 'MULAI KOMPETISI';
+            } else if (result.exists || email === 'medtools.mercy@gmail.com') {
                 quizState.email = email;
-                quizState.name = name; // Save the name entered for leaderboard
+                quizState.name = name;
                 startQuiz();
             } else {
                 msg.textContent = 'Email belum terdaftar. Silakan daftar INC terlebih dahulu.';
