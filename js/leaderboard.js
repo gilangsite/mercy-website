@@ -33,6 +33,11 @@ async function fetchLeaderboard() {
     const loading = document.getElementById('loading');
     const personalResult = document.getElementById('personalResult');
 
+    // New UI Elements
+    const personalMessageContainer = document.getElementById('personalMessageContainer');
+    const defaultHeader = document.getElementById('defaultHeader');
+    const shareSection = document.getElementById('shareSection');
+
     try {
         const response = await fetch(APPS_SCRIPT_URL + '?action=get_leaderboard');
         const allData = await response.json();
@@ -72,32 +77,52 @@ async function fetchLeaderboard() {
 
         // Show Personal Result Section if User Found
         if (currentUserData) {
-            personalResult.classList.remove('hidden');
-            document.getElementById('personalMessage').innerHTML = `Hebat, <strong>${currentUserData.name}</strong>! Kamu berhasil menduduki leaderboard peringkat <strong>${currentUserRank}</strong> dari <strong>${allData.length}</strong> peserta.`;
+            // Hide Default Header, Show Personal Header
+            if (defaultHeader) defaultHeader.classList.add('hidden');
+            if (personalMessageContainer) personalMessageContainer.classList.remove('hidden');
 
-            // Populate Hidden Poster Data
-            document.getElementById('posterName').textContent = currentUserData.name;
-            document.getElementById('posterRank').textContent = currentUserRank;
-            document.getElementById('posterTotal').textContent = allData.length;
+            // Update Text
+            const pHeader = document.getElementById('personalHeader');
+            const pSub = document.getElementById('personalSub');
 
-            // Populate Poster Mini Leaderboard (Top 3)
-            posterTbody.innerHTML = '';
-            // Determine range to show: Top 3 always
-            const top3 = allData.slice(0, 3);
+            if (pHeader) pHeader.textContent = `Hebat, ${currentUserData.name}!`;
+            if (pSub) pSub.innerHTML = `Kamu berhasil menduduki leaderboard peringkat <strong>${currentUserRank}</strong> dari <strong>${allData.length}</strong> peserta.`;
 
-            top3.forEach((u, i) => {
-                const r = i + 1;
-                const badge = getRankBadge(r); // Plain number or simple badge for poster? Text is better for html2canvas reliability usually, but badges ok.
-                const isMe = currentUserEmail && u.email === currentUserEmail;
+            // Show Share Button (Bottom)
+            if (shareSection) shareSection.classList.remove('hidden');
 
-                posterTbody.innerHTML += `
-                    <tr style="${isMe ? 'color:#1e40af; font-weight:bold;' : 'color:#333;'}">
-                        <td style="padding: 15px; border-bottom: 2px solid #eee;">#${r}</td>
-                        <td style="padding: 15px; border-bottom: 2px solid #eee;">${u.name}</td>
-                        <td style="padding: 15px; border-bottom: 2px solid #eee; text-align:right;">Selesai</td>
-                    </tr>
-                `;
-            });
+            // --- Populate Hidden Poster Data ---
+            const postName = document.getElementById('posterName');
+            const postRank = document.getElementById('posterRank');
+            const postTotal = document.getElementById('posterTotal');
+
+            if (postName) postName.textContent = currentUserData.name;
+            if (postRank) postRank.textContent = currentUserRank;
+            if (postTotal) postTotal.textContent = allData.length;
+
+            // Populate Poster Leaderboard (Top 10)
+            if (posterTbody) {
+                posterTbody.innerHTML = '';
+                const top10 = allData.slice(0, 10); // Grab Top 10
+
+                top10.forEach((u, i) => {
+                    const r = i + 1;
+                    const isMe = currentUserEmail && u.email === currentUserEmail;
+
+                    posterTbody.innerHTML += `
+                        <tr style="${isMe ? 'color:#1e40af; font-weight:bold;' : 'color:#333;'}">
+                            <td style="padding: 12px; border-bottom: 2px solid #eee; width: 80px;">#${r}</td>
+                            <td style="padding: 12px; border-bottom: 2px solid #eee;">${u.name}</td>
+                            <td style="padding: 12px; border-bottom: 2px solid #eee; text-align:right;">Selesai</td>
+                        </tr>
+                    `;
+                });
+            }
+        } else {
+            // Default View (No User Logged In)
+            if (defaultHeader) defaultHeader.classList.remove('hidden');
+            if (personalMessageContainer) personalMessageContainer.classList.add('hidden');
+            if (shareSection) shareSection.classList.add('hidden');
         }
 
     } catch (error) {
