@@ -5,7 +5,7 @@
 
 // CONFIGURATION
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1_17nAVrjJ0rcWvtSOvTXRnpptTeEnepr5FaVuttwmZJ9AZ43KsXDsuEkHnwRUJYtzw/exec';
-const QUIZ_DURATION_MINUTES = 60;
+const QUIZ_DURATION_MINUTES = 0.17; // 10 Detik (Testing)
 
 let quizState = {
     name: '', // Display name for leaderboard
