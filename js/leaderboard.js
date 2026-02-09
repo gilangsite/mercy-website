@@ -56,33 +56,45 @@ async function fetchLeaderboard() {
             const localScore = parseFloat(localStorage.getItem('mercy_quiz_score') || urlScore || 0);
             const localName = localStorage.getItem('mercy_quiz_name') || urlName || 'Peserta';
 
-            // Normalize current user email
+            // Normalize for comparison
             const searchEmail = currentUserEmail.toLowerCase().trim();
+            const searchName = localName.toLowerCase().trim();
 
-            // Check if user exists in API data (support various casing for 'email')
-            const exists = allData.find(u => {
+            // Find if user already exists in API data (by Email OR Name)
+            // We verify Name match to prevent "Ghost Duplicates" where API has name but no email
+            const existingIndex = allData.findIndex(u => {
                 const uEmail = (u.email || u.Email || u['Email Address'] || '').toLowerCase().trim();
-                return uEmail === searchEmail;
+                const uName = (u.name || u.Name || '').toLowerCase().trim();
+                return (uEmail && uEmail === searchEmail) || (uName === searchName);
             });
 
-            if (!exists && localScore > 0) {
-                // Create temporary user object
+            if (existingIndex !== -1) {
+                // User FOUND in API. 
+                // We update the local object to ensure it highlights correctly as "(Anda)"
+                // This fixes the issue where API has name but no email
+                if (!allData[existingIndex].email) {
+                    allData[existingIndex].email = currentUserEmail;
+                }
+                // Optional: Update score if local is higher (Optimistic)
+                if (localScore > (allData[existingIndex].score || 0)) {
+                    allData[existingIndex].score = localScore;
+                }
+
+                // Clear the optimistic flag since we found them
+                localStorage.removeItem('mercy_quiz_score');
+            } else if (localScore > 0) {
+                // User NOT found in API, insert optimistic
                 const tempUser = {
                     name: localName,
                     email: currentUserEmail,
                     score: localScore,
-                    time: "Just now" // Time string or whatever format
+                    time: "Just now"
                 };
                 allData.push(tempUser);
-
-                // Re-sort data: Higher Score first.
-                // If scores are equal, we could sort by time/timestamp if available
-                allData.sort((a, b) => (b.score || 0) - (a.score || 0));
-            } else if (exists) {
-                // If user exists in API, clear the optimistic triggers
-                localStorage.removeItem('mercy_quiz_score');
-                // We keep the email in localStorage for persistent login
             }
+
+            // Re-sort data: Higher Score first.
+            allData.sort((a, b) => (b.score || 0) - (a.score || 0));
         }
 
         // Render Main Table
