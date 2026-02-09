@@ -103,7 +103,7 @@ function sendEmailConfirmation(data) {
     return;
   }
   
-  var subject = "Konfirmasi Pendaftaran INC Mercy 2026";
+  var subject = "Pendaftaran INC 2026 BERHASIL! 🎉";
   var htmlTemplate = getEmailTemplate();
   
   // Replace Placeholders
@@ -134,7 +134,7 @@ function getEmailTemplate() {
         table { border-collapse: collapse !important; }
         body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; font-family: 'Poppins', Helvetica, Arial, sans-serif; background-color: #F8F9FA; }
         .email-container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .header { background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); padding: 40px 20px; text-align: center; color: #FFFFFF; }
+        .header { background: linear-gradient(135deg, #193c76 0%, #3B82F6 100%); padding: 40px 20px; text-align: center; color: #FFFFFF; }
         .content { padding: 40px 30px; color: #6B7280; line-height: 1.6; }
         .footer { background-color: #F8F9FA; padding: 30px; text-align: center; font-size: 14px; color: #9CA3AF; }
         .title { font-size: 24px; font-weight: 800; margin: 0 0 10px; color: #FFFFFF; }
@@ -144,13 +144,11 @@ function getEmailTemplate() {
         .data-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .label { font-weight: 600; color: #1E3A8A; font-size: 13px; text-transform: uppercase; display: block; margin-bottom: 4px; }
         .value { color: #374151; font-size: 16px; }
-        .btn { display: inline-block; padding: 14px 28px; border-radius: 50px; font-weight: 600; text-decoration: none; text-align: center; margin: 10px 5px; font-size: 15px; }
-        .btn-primary { background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); color: #FFFFFF !important; }
+        .btn { display: inline-block; padding: 14px 28px; border-radius: 8px; font-weight: 600; text-decoration: none; text-align: center; margin: 10px 5px; font-size: 15px; }
+        .btn-primary { background: linear-gradient(135deg, #193c76 0%, #3B82F6 100%); color: #FFFFFF !important; }
         .btn-whatsapp { background-color: #25D366; color: #FFFFFF !important; }
-        .warning-box { background-color: #FFFBEB; border-left: 4px solid #F59E0B; padding: 20px; border-radius: 8px; margin: 30px 0; color: #92400E; }
+        .warning-box { background-color: #EFF6FF; border-left: 4px solid #3B82F6; padding: 20px; border-radius: 8px; margin: 30px 0; color: #1E3A8A; }
         .warning-title { font-weight: 700; margin-bottom: 8px; display: block; font-size: 15px; }
-        .share-section { text-align: center; margin-top: 40px; padding-top: 40px; border-top: 1px solid #E5E7EB; }
-        .share-image { width: 100%; max-width: 300px; border-radius: 12px; margin: 20px 0; border: 1px solid #E5E7EB; }
     </style>
 </head>
 <body>
@@ -166,7 +164,7 @@ function getEmailTemplate() {
                 <div class="user-data">
                     <div class="data-item"><span class="label">Nama Lengkap</span><span class="value">{{nama}}</span></div>
                     <div class="data-item"><span class="label">ID Email (Login)</span><span class="value">{{email}}</span></div>
-                    <div class="data-item"><span class="label">Institusi</span><span class="value">{{institusi}}</span></div>
+                    <div class="data-item"><span class="label">Universitas</span><span class="value">{{institusi}}</span></div>
                     <div class="data-item"><span class="label">Semester</span><span class="value">{{semester}}</span></div>
                     <div class="data-item" style="border-bottom: none;"><span class="label">Nomor WhatsApp</span><span class="value">{{whatsapp}}</span></div>
                 </div>
@@ -178,12 +176,12 @@ function getEmailTemplate() {
                     <a href="https://mercy-ashen.vercel.app/quiz.html" class="btn btn-primary" style="color: #FFFFFF;">MASUK KE PORTAL INC</a>
                     <a href="https://chat.whatsapp.com/F4yp7SWVeoeEFv3UDYAtty" class="btn btn-whatsapp" style="color: #FFFFFF;">JOIN GRUP WHATSAPP</a>
                 </div>
-                <div class="share-section">
-                    <h3 style="color: #1E3A8A; margin-bottom: 10px;">Ayo Share Kebahagiaanmu!</h3>
-                    <p style="font-size: 14px;">Bagikan konfirmasi pendaftaran ini ke Instagram Stories kamu, tag <strong>@medtools.id</strong> & <strong>@medtools.academy</strong>!</p>
-                    <p style="font-size: 12px; font-style: italic; margin-bottom: 5px;">Contoh Template Story:</p>
-                    <img src="https://mercy-ashen.vercel.app/assets/images/story-example.png" alt="Template Story" class="share-image">
-                    <p style="font-size: 14px; font-weight: 600;">#Mercy2026 #MedtoolsRamadhan</p>
+                <div style="margin-top: 40px; padding-top: 20px; text-align: center;">
+                    <p style="font-size: 16px; font-weight: 600; color: #1E3A8A;">Sampai Jumpa di Kompetisi, {{nama}}!</p>
+                </div>
+                <div style="margin-top: 30px; color: #6B7280; font-size: 14px;">
+                    <p style="margin: 0;">Best Regards,</p>
+                    <p style="margin: 0; font-weight: 700; color: #1E3A8A;">Gilang - Mercy Project Director.</p>
                 </div>
             </div>
             <div class="footer">
