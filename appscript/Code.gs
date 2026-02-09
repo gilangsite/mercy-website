@@ -192,7 +192,7 @@ function getEmailTemplate() {
         </div>
     </div>
 </body>
-</html>\`;
+</html>`;
 }
 
 function sendAdminNotification(data) {
@@ -234,3 +234,4 @@ function testSystem() {
     Logger.log("Error saat tes: " + e.toString());
   }
 }
+
