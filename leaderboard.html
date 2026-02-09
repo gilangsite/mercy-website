@@ -92,6 +92,23 @@
                 <p>Peringkat diupdate secara Real Time</p>
             </div>
 
+            <!-- Personal Result Section (Hidden by default) -->
+            <div id="personalResult" class="card mb-4 hidden"
+                style="background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 2px solid var(--color-blue-light);">
+                <div class="text-center">
+                    <h3 class="mb-2">🎉 Selamat!</h3>
+                    <p class="mb-3" id="personalMessage">Hebat, [Nama]! Kamu berhasil menduduki leaderboard peringkat
+                        [Rank] dari [Total] peserta.</p>
+
+                    <button id="btnShareStory" class="btn btn-primary">
+                        <i class="fas fa-share-alt"></i> Share to Stories
+                    </button>
+                    <button id="btnDownloadImage" class="btn btn-secondary mt-2" style="display:none;">
+                        <i class="fas fa-download"></i> Download Image
+                    </button>
+                </div>
+            </div>
+
             <div id="leaderboardContainer">
                 <table class="leaderboard-table">
                     <thead>
@@ -116,6 +133,108 @@
         </div>
     </section>
 
+    <!-- Hidden Poster Template for html2canvas -->
+    <div id="posterContainer"
+        style="position: fixed; left: -9999px; top: 0; width: 1080px; height: 1920px; background: white; z-index: -1;">
+        <div
+            style="width: 100%; height: 100%; padding: 100px 80px; display: flex; flex-direction: column; align-items: center; justify-content: start; text-align: center; background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 100%); position: relative; overflow: hidden;">
+
+            <!-- Background Elements -->
+            <div
+                style="position: absolute; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(59, 130, 246, 0.05); border-radius: 50%;">
+            </div>
+            <div
+                style="position: absolute; bottom: -100px; right: -100px; width: 800px; height: 800px; background: rgba(30, 58, 138, 0.05); border-radius: 50%;">
+            </div>
+
+            <!-- Title -->
+            <h1
+                style="font-size: 90px; line-height: 1.1; color: var(--color-navy); margin-bottom: 40px; font-weight: 800; text-transform: uppercase;">
+                ISENG NGETEST<br>COMPETITION 2026
+            </h1>
+
+            <!-- Message -->
+            <div style="font-size: 40px; color: #333; margin-bottom: 60px; line-height: 1.4; max-width: 900px;">
+                Hebat, <span id="posterName" style="color: var(--color-navy); font-weight: 700;">[Nama]</span>! kamu
+                berhasil<br>
+                menduduki leaderboard peringkat ...
+            </div>
+
+            <!-- Big Rank -->
+            <div style="display: flex; align-items: baseline; justify-content: center; margin-bottom: 60px;">
+                <span id="posterRank"
+                    style="font-size: 350px; font-weight: 800; color: var(--color-blue-saturated); line-height: 1;">1</span>
+                <span style="font-size: 60px; color: var(--color-navy); font-weight: 600; margin-left: 20px;">DARI <span
+                        id="posterTotal" style="font-weight: 800;">100</span> PESERTA</span>
+            </div>
+
+            <!-- Mini Leaderboard -->
+            <div
+                style="width: 100%; background: white; border-radius: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); padding: 40px; margin-bottom: 60px; border: 4px solid var(--color-gray-medium);">
+                <table style="width: 100%; border-collapse: collapse; font-size: 32px;">
+                    <tbody id="posterLeaderboardBody">
+                        <!-- Top 3 will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="font-size: 24px; color: #666; margin-bottom: 60px; font-style: italic;">
+                Statistik bersifat sementera sampai event selesai.
+            </div>
+
+            <!-- Illustration / Mascot Placeholder -->
+            <div style="margin-bottom: 60px;">
+                <i class="fas fa-trophy"
+                    style="font-size: 200px; color: #FFD700; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));"></i>
+            </div>
+
+
+            <!-- Footer Call to Action -->
+            <div
+                style="font-size: 32px; color: var(--color-navy); line-height: 1.5; margin-bottom: 60px; max-width: 900px;">
+                Yuk Share prestasimu ini ke Instagram Stories, lalu<br>
+                Mention <strong>@medtools.id</strong> dan <strong>@medtools.academy</strong>.
+            </div>
+            <div
+                style="font-size: 32px; color: var(--color-navy); line-height: 1.5; margin-bottom: 80px; max-width: 900px;">
+                Jangan lupa ajak juga temen kamu untuk Ikutan<br>
+                Kompetisi Iseng Ngetest di <strong>Mercy 2026</strong>
+            </div>
+
+            <!-- Branding Pill -->
+            <div
+                style="background: var(--color-blue-saturated); color: white; padding: 20px 60px; border-radius: 100px; font-size: 36px; font-weight: 700; display: flex; align-items: center; gap: 20px;">
+                <i class="fas fa-globe"></i> MERCY.MEDTOOLS.ID
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content text-center">
+            <div class="modal-header">
+                <h3 class="modal-title">Bagikan Pencapaianmu</h3>
+                <button class="modal-close" id="closeShareModal"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="mb-4">Pilih cara membagikan poster pencapaian kamu:</p>
+
+            <div class="d-grid gap-3" style="display: grid; gap: 1rem;">
+                <button id="btnShareIG" class="btn btn-primary btn-lg"
+                    style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border:none;">
+                    <i class="fab fa-instagram"></i> Instagram Stories
+                </button>
+                <button id="btnSavePNG" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-download"></i> Simpan sebagai PNG
+                </button>
+            </div>
+            <div id="generatingLoader" class="hidden mt-3 text-muted">
+                <i class="fas fa-spinner fa-spin"></i> Sedang membuat poster...
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="js/leaderboard.js"></script>
 </body>
 
