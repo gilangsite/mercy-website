@@ -196,14 +196,14 @@ function updateAnswerCount() {
 
 // --- Timer ---
 function startTimer() {
-    let timeLeft = QUIZ_DURATION_MINUTES * 60;
+    let timeLeft = Math.floor(QUIZ_DURATION_MINUTES * 60); // Ensure integer seconds
     const display = document.getElementById('timerDisplay');
 
     quizState.timerInterval = setInterval(() => {
         timeLeft--;
 
         const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
+        const seconds = Math.floor(timeLeft % 60); // Ensure integer for display
 
         display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
