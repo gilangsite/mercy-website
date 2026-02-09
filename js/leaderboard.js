@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1_17nAVrjJ0rcWvtSOvTXRnpptTeEnepr5FaVuttwmZJ9AZ43KsXDsuEkHnwRUJYtzw/exec';
-let currentUserEmail = localStorage.getItem('mercy_quiz_email') || ''; // Assuming email is saved during quiz login
+let currentUserEmail = localStorage.getItem('mercy_quiz_email') || '';
 let isGenerating = false;
 
 // Attempt to get email from URL if redirected from quiz
@@ -28,37 +28,59 @@ if (urlEmail) {
     currentUserEmail = urlEmail;
     localStorage.setItem('mercy_quiz_email', urlEmail);
 }
-if (urlName) {
-    localStorage.setItem('mercy_quiz_name', urlName);
-}
+
+const urlScore = urlParams.get('score');
+
+// If user from URL (recently finished quiz), allow optimistic UI update
+if (urlName) localStorage.setItem('mercy_quiz_name', urlName);
+if (urlScore) localStorage.setItem('mercy_quiz_score', urlScore);
 
 async function fetchLeaderboard() {
     const tbody = document.getElementById('leaderboardBody');
     const posterTbody = document.getElementById('posterLeaderboardBody');
     const loading = document.getElementById('loading');
-    const personalResult = document.getElementById('personalResult');
 
-    // New UI Elements
+    // UI Elements
     const personalMessageContainer = document.getElementById('personalMessageContainer');
     const defaultHeader = document.getElementById('defaultHeader');
     const shareSection = document.getElementById('shareSection');
 
     try {
         const response = await fetch(APPS_SCRIPT_URL + '?action=get_leaderboard');
-        const allData = await response.json();
+        let allData = await response.json();
+
+        // --- OPTIMISTIC UI UPDATE ---
+        // If current user just finished quiz (has data in URL/LocalStorage) but API hasn't updated yet
+        // We inject them locally to show immediate rank & share button
+        if (currentUserEmail) {
+            const localScore = parseFloat(localStorage.getItem('mercy_quiz_score') || urlScore || 0);
+            const localName = localStorage.getItem('mercy_quiz_name') || urlName || 'Peserta';
+
+            //Check if user exists in API data
+            const exists = allData.find(u => u.email === currentUserEmail);
+
+            if (!exists && localScore > 0) {
+                // Create temporary user object
+                const tempUser = {
+                    name: localName,
+                    email: currentUserEmail,
+                    score: localScore,
+                    time: "Just now" // Time string or whatever format
+                };
+                allData.push(tempUser);
+
+                // Re-sort data: Higher Score first. If score same, existing logic might apply (but for now simple sort)
+                allData.sort((a, b) => b.score - a.score);
+            }
+        }
 
         // Render Main Table
         loading.style.display = 'none';
         tbody.innerHTML = '';
 
         if (allData.length === 0) {
-            // If no data but we have local user, show them pending
-            if (currentUserEmail) {
-                // Show temporary "Pending" state or just the personal header
-                handlePendingUser();
-            } else {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center">Belum ada data kompetisi.</td></tr>';
-            }
+            // Should not happen if we injected user, but safe fallback
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">Belum ada data kompetisi.</td></tr>';
             return;
         }
 

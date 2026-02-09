@@ -291,10 +291,10 @@ async function finishQuiz(auto = false) {
         body: JSON.stringify(payload)
     }).then(() => {
         // Redirect to Leaderboard with user info for personalization
-        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}`;
+        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}&score=${finalScore}`;
     }).catch(err => {
         console.error('Submission failed', err);
         // Fallback redirect
-        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}`;
+        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}&score=${finalScore}`;
     });
 }
