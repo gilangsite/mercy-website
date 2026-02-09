@@ -56,11 +56,14 @@ async function fetchLeaderboard() {
             const localScore = parseFloat(localStorage.getItem('mercy_quiz_score') || urlScore || 0);
             const localName = localStorage.getItem('mercy_quiz_name') || urlName || 'Peserta';
 
-            // Normalize email for comparison
+            // Normalize current user email
             const searchEmail = currentUserEmail.toLowerCase().trim();
 
-            //Check if user exists in API data (Case-Insensitive)
-            const exists = allData.find(u => u.email && u.email.toLowerCase().trim() === searchEmail);
+            // Check if user exists in API data (support various casing for 'email')
+            const exists = allData.find(u => {
+                const uEmail = (u.email || u.Email || u['Email Address'] || '').toLowerCase().trim();
+                return uEmail === searchEmail;
+            });
 
             if (!exists && localScore > 0) {
                 // Create temporary user object
@@ -85,17 +88,36 @@ async function fetchLeaderboard() {
         // Render Main Table
         loading.style.display = 'none';
 
-        // --- DEDUPLICATION (Ensure 1 entry per email) ---
+        // --- DEDUPLICATION (Ensure 1 entry per individual) ---
         const uniqueDataMap = new Map();
-        allData.forEach(item => {
-            const emailKey = item.email ? item.email.toLowerCase().trim() : 'no-email';
-            if (!uniqueDataMap.has(emailKey)) {
-                uniqueDataMap.set(emailKey, item);
+        allData.forEach((item, idx) => {
+            // Get email and name using multiple common key variations
+            const email = (item.email || item.Email || item['Email Address'] || '').toLowerCase().trim();
+            const name = (item.name || item.Name || '').toLowerCase().trim();
+
+            // Generate a unique-ish key
+            let key = '';
+            if (email) {
+                key = `email:${email}`;
+            } else if (name) {
+                key = `name:${name}`;
+            } else {
+                key = `idx:${idx}`; // Fallback to unique index if all else fails
+            }
+
+            if (!uniqueDataMap.has(key)) {
+                uniqueDataMap.set(key, item);
             }
         });
+
         allData = Array.from(uniqueDataMap.values());
-        // Re-sort to be sure
-        allData.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+        // Final Re-sort: Higher Score first
+        allData.sort((a, b) => {
+            const scoreA = parseFloat(a.score || a.Score || 0);
+            const scoreB = parseFloat(b.score || b.Score || 0);
+            return scoreB - scoreA;
+        });
 
         tbody.innerHTML = '';
 
@@ -112,8 +134,13 @@ async function fetchLeaderboard() {
             const rank = index + 1;
             const searchEmail = currentUserEmail.toLowerCase().trim();
 
-            // Check for current user (Case-Insensitive)
-            if (currentUserEmail && user.email && user.email.toLowerCase().trim() === searchEmail) {
+            // Get user fields with multi-key support
+            const uEmail = (user.email || user.Email || user['Email Address'] || '').toLowerCase().trim();
+            const uName = user.name || user.Name || 'Peserta';
+            const isMe = currentUserEmail && uEmail === searchEmail;
+
+            // Check for current user
+            if (isMe) {
                 currentUserRank = rank;
                 currentUserData = user;
             }
@@ -121,9 +148,9 @@ async function fetchLeaderboard() {
             // Render Row
             const rankBadge = getRankBadge(rank);
             const row = `
-            <tr class="${currentUserEmail && user.email === currentUserEmail ? 'highlight-row' : ''}" style="${currentUserEmail && user.email === currentUserEmail ? 'background-color: #eff6ff;' : ''}">
+            <tr class="${isMe ? 'highlight-row' : ''}" style="${isMe ? 'background-color: #eff6ff;' : ''}">
                 <td>${rankBadge}</td>
-                <td><div style="font-weight: 500;">${user.name} ${currentUserEmail && user.email === currentUserEmail ? '(Anda)' : ''}</div></td>
+                <td><div style="font-weight: 500;">${uName} ${isMe ? '(Anda)' : ''}</div></td>
                 <td><span class="badge" style="background:#dbeafe; color:#1e40af; padding:4px 8px; border-radius:4px; font-size:0.8rem;">Selesai</span></td>
             </tr>
         `;
@@ -151,7 +178,7 @@ async function fetchLeaderboard() {
             const postRank = document.getElementById('posterRank');
             const postTotal = document.getElementById('posterTotal');
 
-            if (postName) postName.textContent = currentUserData.name;
+            if (postName) postName.textContent = currentUserData.name || currentUserData.Name || 'Peserta';
             if (postRank) postRank.textContent = currentUserRank;
             if (postTotal) postTotal.textContent = allData.length;
 
@@ -162,12 +189,14 @@ async function fetchLeaderboard() {
 
                 top10.forEach((u, i) => {
                     const r = i + 1;
-                    const isMe = currentUserEmail && u.email === currentUserEmail;
+                    const uEmail = (u.email || u.Email || u['Email Address'] || '').toLowerCase().trim();
+                    const uName = u.name || u.Name || 'Peserta';
+                    const isMe = currentUserEmail && uEmail === currentUserEmail.toLowerCase().trim();
 
                     posterTbody.innerHTML += `
                         <tr style="${isMe ? 'color:#1e40af; font-weight:bold;' : 'color:#333;'}">
                             <td style="padding: 12px; border-bottom: 2px solid #eee; width: 80px;">#${r}</td>
-                            <td style="padding: 12px; border-bottom: 2px solid #eee;">${u.name}</td>
+                            <td style="padding: 12px; border-bottom: 2px solid #eee;">${uName}</td>
                             <td style="padding: 12px; border-bottom: 2px solid #eee; text-align:right;">Selesai</td>
                         </tr>
                     `;
