@@ -613,39 +613,47 @@ a:hover {
 }
 
 /* ============================================
-   INFINITE SCROLL (ABOUT SECTION)
+   SWIPER / CAROUSEL (ABOUT SECTION)
    ============================================ */
-.marquee-container {
-  overflow: hidden;
+.swiper-container {
+  overflow-x: auto;
   position: relative;
   width: 100%;
   padding: var(--spacing-md) 0;
-  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar for cleaner look */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.marquee-content {
+.swiper-container::-webkit-scrollbar {
+  display: none;
+}
+
+.swiper-content {
   display: flex;
-  gap: var(--spacing-lg);
-  width: max-content;
-  animation: scroll 30s linear infinite;
+  gap: var(--spacing-md);
+  /* Remove width: max-content so it flows naturally in flex container */
+  padding: 0 var(--spacing-md);
+  /* Add side padding for better snap alignment */
 }
 
-.marquee-content .card {
+.swiper-card {
   width: 350px;
   flex-shrink: 0;
+  scroll-snap-align: center;
 }
 
-.marquee-container:hover .marquee-content {
-  animation-play-state: paused;
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
+@media (max-width: 600px) {
+  .swiper-card {
+    width: 85vw;
+    scroll-snap-align: center;
   }
 
-  100% {
-    transform: translateX(calc(-350px * 4 - var(--spacing-lg) * 4));
+  .swiper-content {
+    gap: var(--spacing-sm);
   }
 }
 
