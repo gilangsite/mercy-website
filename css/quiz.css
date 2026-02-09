@@ -1,0 +1,350 @@
+/* ============================================
+   QUIZ SPECIFIC STYLES
+   ============================================ */
+
+/* Global Fixes for Mobile Layout */
+html,
+body {
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Login Overlay */
+.quiz-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-blue-saturated) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.quiz-login-card {
+    width: 100%;
+    max-width: 400px;
+    margin: var(--spacing-md);
+}
+
+/* Quiz Layout Main Container */
+.quiz-container {
+    display: flex;
+    height: 100vh;
+    /* Use 100dvh for better mobile support if supported, fallback 100vh */
+    height: 100dvh;
+    width: 100vw;
+    max-width: 100%;
+    background: var(--color-gray-light);
+    overflow: hidden;
+}
+
+/* Sidebar Styling */
+.quiz-sidebar {
+    width: 280px;
+    background: var(--color-white);
+    border-right: 1px solid var(--color-gray-medium);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-gray-medium);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-info {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-gray-light);
+    font-size: 0.875rem;
+    color: var(--color-gray-dark);
+}
+
+.question-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    align-content: start;
+}
+
+.q-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 5px;
+    border: 1px solid var(--color-gray-medium);
+    background: var(--color-white);
+    color: var(--color-gray-dark);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-primary);
+}
+
+.q-nav-btn:hover {
+    border-color: var(--color-blue-saturated);
+    color: var(--color-blue-saturated);
+}
+
+.q-nav-btn.active {
+    border-color: var(--color-navy);
+    box-shadow: 0 0 0 2px var(--color-navy);
+}
+
+.q-nav-btn.answered {
+    background-color: var(--color-blue-saturated);
+    border-color: var(--color-blue-saturated);
+    color: var(--color-white);
+}
+
+.sidebar-close-btn {
+    display: none;
+    /* Only show on mobile */
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    /* Increased touch target */
+}
+
+/* Main Content Area */
+.quiz-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.quiz-header {
+    background: var(--color-white);
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+}
+
+.sidebar-toggle-btn {
+    display: none;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-medium);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    color: var(--color-navy);
+    cursor: pointer;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.timer-container {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-gray-light);
+    padding: 5px 15px;
+    border-radius: 20px;
+}
+
+/* Question Area */
+.question-area {
+    padding: var(--spacing-lg);
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.question-card {
+    background: var(--color-white);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-lg);
+    flex: 1;
+}
+
+.question-number {
+    font-size: 1rem;
+    color: var(--color-gray-dark);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+}
+
+.question-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: var(--spacing-lg);
+    word-break: break-word;
+    /* Prevent overflow from long words */
+}
+
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.option-btn {
+    /* Changed from label to button behavior for better control */
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    background: var(--color-white);
+    border: 2px solid var(--color-gray-medium);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    text-align: left;
+    position: relative;
+    word-break: break-word;
+    /* Prevent overflow */
+}
+
+.option-btn::before {
+    content: attr(data-key);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--color-gray-light);
+    margin-right: 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.option-btn:hover {
+    border-color: var(--color-blue-light);
+    background: #eff6ff;
+}
+
+.option-btn.selected {
+    border-color: var(--color-blue-saturated);
+    background: #eff6ff;
+}
+
+.option-btn.selected::before {
+    background: var(--color-blue-saturated);
+    color: var(--color-white);
+}
+
+.quiz-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: var(--spacing-md);
+}
+
+@media (max-width: 480px) {
+    .quiz-controls {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        /* Allow wrapping if needed */
+    }
+
+    .quiz-controls .btn {
+        min-width: 60px;
+        padding: 0.8rem 1rem;
+        /* Larger touch target */
+    }
+}
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .quiz-sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-xl);
+        width: 85%;
+        /* User requested neat active state, slightly wider is better */
+        max-width: 320px;
+        z-index: 2000;
+        height: 100dvh;
+    }
+
+    .quiz-sidebar.active {
+        transform: translateX(0);
+    }
+
+    /* Overlay effect for better focus when sidebar is active */
+    .quiz-sidebar.active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        /* Position relative to sidebar? No, fixed to viewport */
+        left: 100%;
+        /* Start from edge of sidebar */
+        width: 100vw;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: -1;
+        pointer-events: none;
+        /* Let clicks pass though (or handle closing) */
+    }
+
+    .sidebar-toggle-btn {
+        display: flex;
+        padding: 12px 16px;
+        /* Larger touch target */
+        margin-left: 2px;
+        /* Slight offset if "too left" */
+        font-size: 1rem;
+    }
+
+    .sidebar-close-btn {
+        display: block;
+    }
+
+    .question-area {
+        padding: var(--spacing-md);
+        display: block;
+        /* Ensure no flex conflicts on mobile scroll */
+    }
+
+    .question-card {
+        padding: var(--spacing-md);
+    }
+
+    .question-text {
+        font-size: 1.1rem;
+    }
+
+    /* Prevent horizontal slide */
+    .quiz-main {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+}
