@@ -41,7 +41,7 @@ function handleRegistration(data) {
   }
   sheet.appendRow([new Date(), data.nama, data.email, data.institusi, data.instagram, data.semester, data.whatsapp]);
   try {
-    sendEmailConfirmation(data.email, data.nama);
+    sendEmailConfirmation(data);
     sendAdminNotification(data);
   } catch (f) { Logger.log("Email error: " + f.toString()); }
   return responseJSON({ success: true, message: 'Registration successful' });
@@ -97,21 +97,102 @@ function responseJSON(data) {
 
 // --- EMAIL FUNCTIONS ---
 
-function sendEmailConfirmation(email, name) {
-  if (!email || !name) {
-    Logger.log("Info: Fungsi sendEmailConfirmation dihentikan karena tidak ada data. Gunakan 'testSystem' untuk mengetes.");
+function sendEmailConfirmation(data) {
+  if (!data || !data.email) {
+    Logger.log("Info: Fungsi sendEmailConfirmation dihentikan karena tidak ada data.");
     return;
   }
+  
   var subject = "Konfirmasi Pendaftaran INC Mercy 2026";
-  var body = "Halo " + name + ",\n\n" +
-             "Selamat! Pendaftaran kamu untuk Iseng Ngetest Competition (INC) Mercy 2026 telah berhasil.\n\n" +
-             "Berikut langkah selanjutnya:\n" +
-             "1. Join Grup WhatsApp Peserta untuk info teknis.\n" +
-             "2. Kompetisi akan dilaksanakan pada tanggal [DATE].\n" +
-             "3. Login menggunakan email ini saat kompetisi dimulai.\n\n" +
-             "Salam,\n" +
-             "Panitia Mercy 2026";
-  MailApp.sendEmail(email, subject, body);
+  var htmlTemplate = getEmailTemplate();
+  
+  // Replace Placeholders
+  var htmlBody = htmlTemplate
+    .replace(/{{nama}}/g, data.nama)
+    .replace(/{{email}}/g, data.email)
+    .replace(/{{institusi}}/g, data.institusi)
+    .replace(/{{semester}}/g, data.semester)
+    .replace(/{{whatsapp}}/g, data.whatsapp);
+
+  MailApp.sendEmail({
+    to: data.email,
+    subject: subject,
+    htmlBody: htmlBody
+  });
+}
+
+function getEmailTemplate() {
+  return `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        table { border-collapse: collapse !important; }
+        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; font-family: 'Poppins', Helvetica, Arial, sans-serif; background-color: #F8F9FA; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); padding: 40px 20px; text-align: center; color: #FFFFFF; }
+        .content { padding: 40px 30px; color: #6B7280; line-height: 1.6; }
+        .footer { background-color: #F8F9FA; padding: 30px; text-align: center; font-size: 14px; color: #9CA3AF; }
+        .title { font-size: 24px; font-weight: 800; margin: 0 0 10px; color: #FFFFFF; }
+        .subtitle { font-size: 16px; margin: 0; opacity: 0.9; }
+        .user-data { background-color: #F0F9FF; border: 1px solid #DBEAFE; border-radius: 12px; padding: 25px; margin: 30px 0; }
+        .data-item { margin-bottom: 15px; border-bottom: 1px solid #DBEAFE; padding-bottom: 10px; }
+        .data-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .label { font-weight: 600; color: #1E3A8A; font-size: 13px; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .value { color: #374151; font-size: 16px; }
+        .btn { display: inline-block; padding: 14px 28px; border-radius: 50px; font-weight: 600; text-decoration: none; text-align: center; margin: 10px 5px; font-size: 15px; }
+        .btn-primary { background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); color: #FFFFFF !important; }
+        .btn-whatsapp { background-color: #25D366; color: #FFFFFF !important; }
+        .warning-box { background-color: #FFFBEB; border-left: 4px solid #F59E0B; padding: 20px; border-radius: 8px; margin: 30px 0; color: #92400E; }
+        .warning-title { font-weight: 700; margin-bottom: 8px; display: block; font-size: 15px; }
+        .share-section { text-align: center; margin-top: 40px; padding-top: 40px; border-top: 1px solid #E5E7EB; }
+        .share-image { width: 100%; max-width: 300px; border-radius: 12px; margin: 20px 0; border: 1px solid #E5E7EB; }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px 0;">
+        <div class="email-container">
+            <div class="header">
+                <h1 class="title">KONFIRMASI PENDAFTARAN</h1>
+                <p class="subtitle">Iseng Ngetest Competition (INC) Mercy 2026</p>
+            </div>
+            <div class="content">
+                <p style="font-size: 18px; color: #1E3A8A; font-weight: 600;">Halo, {{nama}}!</p>
+                <p>Selamat! Pendaftaran kamu untuk <strong>INC Mercy 2026</strong> telah berhasil kami terima. Berikut adalah rincian data pendaftaran kamu:</p>
+                <div class="user-data">
+                    <div class="data-item"><span class="label">Nama Lengkap</span><span class="value">{{nama}}</span></div>
+                    <div class="data-item"><span class="label">ID Email (Login)</span><span class="value">{{email}}</span></div>
+                    <div class="data-item"><span class="label">Institusi</span><span class="value">{{institusi}}</span></div>
+                    <div class="data-item"><span class="label">Semester</span><span class="value">{{semester}}</span></div>
+                    <div class="data-item" style="border-bottom: none;"><span class="label">Nomor WhatsApp</span><span class="value">{{whatsapp}}</span></div>
+                </div>
+                <div class="warning-box">
+                    <span class="warning-title">⚠️ PENTING: AKSES PORTAL</span>
+                    <p style="margin: 0; font-size: 14px;">Untuk masuk ke Portal INC, kamu wajib menggunakan <strong>Alamat Email</strong> di atas. Email ini bersifat rahasia, jangan berikan kepada siapapun untuk mencegah orang lain login atas nama kamu.</p>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="https://mercy-ashen.vercel.app/quiz.html" class="btn btn-primary" style="color: #FFFFFF;">MASUK KE PORTAL INC</a>
+                    <a href="https://chat.whatsapp.com/F4yp7SWVeoeEFv3UDYAtty" class="btn btn-whatsapp" style="color: #FFFFFF;">JOIN GRUP WHATSAPP</a>
+                </div>
+                <div class="share-section">
+                    <h3 style="color: #1E3A8A; margin-bottom: 10px;">Ayo Share Kebahagiaanmu!</h3>
+                    <p style="font-size: 14px;">Bagikan konfirmasi pendaftaran ini ke Instagram Stories kamu, tag <strong>@medtools.id</strong> & <strong>@medtools.academy</strong>!</p>
+                    <p style="font-size: 12px; font-style: italic; margin-bottom: 5px;">Contoh Template Story:</p>
+                    <img src="https://mercy-ashen.vercel.app/assets/images/story-example.png" alt="Template Story" class="share-image">
+                    <p style="font-size: 14px; font-weight: 600;">#Mercy2026 #MedtoolsRamadhan</p>
+                </div>
+            </div>
+            <div class="footer">
+                <p style="margin-bottom: 10px;">&copy; 2026 Medtools Academy. All Rights Reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>\`;
 }
 
 function sendAdminNotification(data) {
@@ -146,7 +227,7 @@ function testSystem() {
   try {
     sendAdminNotification(dummyData);
     Logger.log("Email Notifikasi Admin BERHASIL dikirim ke: medtools.mercy@gmail.com");
-    sendEmailConfirmation(dummyData.email, dummyData.nama);
+    sendEmailConfirmation(dummyData);
     Logger.log("Email Konfirmasi Peserta BERHASIL dikirim ke: " + dummyData.email);
     Logger.log("Tes Selesai! Silakan cek inbox email Anda.");
   } catch(e) {
