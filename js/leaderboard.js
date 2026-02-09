@@ -56,8 +56,11 @@ async function fetchLeaderboard() {
             const localScore = parseFloat(localStorage.getItem('mercy_quiz_score') || urlScore || 0);
             const localName = localStorage.getItem('mercy_quiz_name') || urlName || 'Peserta';
 
-            //Check if user exists in API data
-            const exists = allData.find(u => u.email === currentUserEmail);
+            // Normalize email for comparison
+            const searchEmail = currentUserEmail.toLowerCase().trim();
+
+            //Check if user exists in API data (Case-Insensitive)
+            const exists = allData.find(u => u.email && u.email.toLowerCase().trim() === searchEmail);
 
             if (!exists && localScore > 0) {
                 // Create temporary user object
@@ -69,13 +72,31 @@ async function fetchLeaderboard() {
                 };
                 allData.push(tempUser);
 
-                // Re-sort data: Higher Score first. If score same, existing logic might apply (but for now simple sort)
-                allData.sort((a, b) => b.score - a.score);
+                // Re-sort data: Higher Score first.
+                // If scores are equal, we could sort by time/timestamp if available
+                allData.sort((a, b) => (b.score || 0) - (a.score || 0));
+            } else if (exists) {
+                // If user exists in API, clear the optimistic triggers
+                localStorage.removeItem('mercy_quiz_score');
+                // We keep the email in localStorage for persistent login
             }
         }
 
         // Render Main Table
         loading.style.display = 'none';
+
+        // --- DEDUPLICATION (Ensure 1 entry per email) ---
+        const uniqueDataMap = new Map();
+        allData.forEach(item => {
+            const emailKey = item.email ? item.email.toLowerCase().trim() : 'no-email';
+            if (!uniqueDataMap.has(emailKey)) {
+                uniqueDataMap.set(emailKey, item);
+            }
+        });
+        allData = Array.from(uniqueDataMap.values());
+        // Re-sort to be sure
+        allData.sort((a, b) => (b.score || 0) - (a.score || 0));
+
         tbody.innerHTML = '';
 
         if (allData.length === 0) {
@@ -89,9 +110,10 @@ async function fetchLeaderboard() {
 
         allData.forEach((user, index) => {
             const rank = index + 1;
+            const searchEmail = currentUserEmail.toLowerCase().trim();
 
-            // Check for current user
-            if (currentUserEmail && user.email === currentUserEmail) {
+            // Check for current user (Case-Insensitive)
+            if (currentUserEmail && user.email && user.email.toLowerCase().trim() === searchEmail) {
                 currentUserRank = rank;
                 currentUserData = user;
             }

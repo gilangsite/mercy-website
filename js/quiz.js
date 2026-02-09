@@ -253,7 +253,11 @@ function initQuizControls() {
 
 
 // --- Submission ---
+let isSubmitting = false;
 async function finishQuiz(auto = false) {
+    if (isSubmitting) return;
+    isSubmitting = true;
+
     clearInterval(quizState.timerInterval);
 
     if (auto) alert('Waktu habis! Jawaban Anda akan disubmit otomatis.');
