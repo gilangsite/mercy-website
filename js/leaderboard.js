@@ -22,9 +22,14 @@ let isGenerating = false;
 // Attempt to get email from URL if redirected from quiz
 const urlParams = new URLSearchParams(window.location.search);
 const urlEmail = urlParams.get('email');
+const urlName = urlParams.get('name'); // Also get name for immediate display
+
 if (urlEmail) {
     currentUserEmail = urlEmail;
     localStorage.setItem('mercy_quiz_email', urlEmail);
+}
+if (urlName) {
+    localStorage.setItem('mercy_quiz_name', urlName);
 }
 
 async function fetchLeaderboard() {
@@ -47,7 +52,13 @@ async function fetchLeaderboard() {
         tbody.innerHTML = '';
 
         if (allData.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" class="text-center">Belum ada data kompetisi.</td></tr>';
+            // If no data but we have local user, show them pending
+            if (currentUserEmail) {
+                // Show temporary "Pending" state or just the personal header
+                handlePendingUser();
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center">Belum ada data kompetisi.</td></tr>';
+            }
             return;
         }
 
@@ -119,15 +130,37 @@ async function fetchLeaderboard() {
                 });
             }
         } else {
-            // Default View (No User Logged In)
-            if (defaultHeader) defaultHeader.classList.remove('hidden');
-            if (personalMessageContainer) personalMessageContainer.classList.add('hidden');
-            if (shareSection) shareSection.classList.add('hidden');
+            // User logged in but not yet in leaderboard (or sync delay)
+            handlePendingUser();
         }
 
     } catch (error) {
         console.error('Leaderboard Fetch Error:', error);
         if (loading) loading.textContent = 'Gagal memuat data peringkat.';
+    }
+}
+
+function handlePendingUser() {
+    const defaultHeader = document.getElementById('defaultHeader');
+    const personalMessageContainer = document.getElementById('personalMessageContainer');
+    const shareSection = document.getElementById('shareSection');
+    const name = localStorage.getItem('mercy_quiz_name') || 'Peserta';
+
+    // Show simplified personal header
+    if (currentUserEmail) {
+        if (defaultHeader) defaultHeader.classList.add('hidden');
+        if (personalMessageContainer) {
+            personalMessageContainer.classList.remove('hidden');
+            const pHeader = document.getElementById('personalHeader');
+            const pSub = document.getElementById('personalSub');
+
+            if (pHeader) pHeader.textContent = `Hebat, ${name}!`;
+            if (pSub) pSub.innerHTML = `Data kamu sedang diproses. Tunggu sebentar untuk melihat peringkatmu.`;
+        }
+    } else {
+        if (defaultHeader) defaultHeader.classList.remove('hidden');
+        if (personalMessageContainer) personalMessageContainer.classList.add('hidden');
+        if (shareSection) shareSection.classList.add('hidden');
     }
 }
 

@@ -281,21 +281,20 @@ async function finishQuiz(auto = false) {
     };
 
     // Submit to Apps Script
-    try {
-        await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload)
-        });
-
-        console.log('Quiz submitted successfully');
-    } catch (err) {
-        console.error('Submission failed:', err);
-    }
-
-    // Redirect to Leaderboard
-    window.location.href = 'leaderboard.html';
+    // (We use no-cors so we can't read response, but we assume it works)
+    fetch(APPS_SCRIPT_URL, {
+        mode: 'no-cors',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    }).then(() => {
+        // Redirect to Leaderboard with user info for personalization
+        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}`;
+    }).catch(err => {
+        console.error('Submission failed', err);
+        // Fallback redirect
+        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}`;
+    });
 }
