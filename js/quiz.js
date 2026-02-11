@@ -5,7 +5,7 @@
 
 // CONFIGURATION
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1_17nAVrjJ0rcWvtSOvTXRnpptTeEnepr5FaVuttwmZJ9AZ43KsXDsuEkHnwRUJYtzw/exec';
-const QUIZ_DURATION_MINUTES = 0.34; // 20 Detik (Testing)
+const QUIZ_DURATION_MINUTES = 45;
 
 let quizState = {
     name: '', // Display name for leaderboard
@@ -60,6 +60,10 @@ function initLogin() {
             }
         } catch (error) {
             console.error(error);
+            // Fallback for testing if network fails
+            quizState.email = email;
+            quizState.name = name;
+            startQuiz();
         }
     });
 
@@ -75,6 +79,9 @@ function initLogin() {
     }
 
     if (closeSidebar && sidebar) {
+        sidebar.addEventListener('click', (e) => {
+            if (e.target === sidebar) sidebar.classList.remove('active');
+        });
         closeSidebar.addEventListener('click', () => {
             sidebar.classList.remove('active');
         });
@@ -92,7 +99,7 @@ async function startQuiz() {
         const response = await fetch('data/questions.json');
         const data = await response.json();
 
-        // For production: shuffle questions or pick 50
+        // Use all 30 questions
         quizState.questions = data;
 
         setupNavigation();
@@ -196,14 +203,14 @@ function updateAnswerCount() {
 
 // --- Timer ---
 function startTimer() {
-    let timeLeft = Math.floor(QUIZ_DURATION_MINUTES * 60); // Ensure integer seconds
+    let timeLeft = Math.floor(QUIZ_DURATION_MINUTES * 60);
     const display = document.getElementById('timerDisplay');
 
     quizState.timerInterval = setInterval(() => {
         timeLeft--;
 
         const minutes = Math.floor(timeLeft / 60);
-        const seconds = Math.floor(timeLeft % 60); // Ensure integer for display
+        const seconds = Math.floor(timeLeft % 60);
 
         display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
@@ -262,30 +269,34 @@ async function finishQuiz(auto = false) {
 
     if (auto) alert('Waktu habis! Jawaban Anda akan disubmit otomatis.');
 
-    const loadingHtml = '<div style="position:fixed;inset:0;background:rgba(255,255,255,0.9);z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;"><h2>Menyimpan Jawaban...</h2><p>Mohon jangan tutup halaman ini.</p></div>';
-    document.body.insertAdjacentHTML('beforeend', loadingHtml);
-
-    // Calculate dummy score locally for demo
-    let score = 0;
+    // Calculate score
+    let correctCount = 0;
     quizState.questions.forEach(q => {
         if (quizState.answers[q.id] === q.correct) {
-            score += 1; // 1 point per correct answer
+            correctCount += 1;
         }
     });
-    const finalScore = score * 2; // Scale to 100 (if 50 questions) - for 5 questions, scale to 100
 
-    // Prepare Data
+    // Scoring Logic: 
+    // If all correct (30) -> 100
+    // If 29 correct -> 3.3 * 29 = 95.7 -> round to 96
+    // Use Math.round(correctCount * 3.333...) but floor/ceil to match user logic
+    let finalScore = (correctCount === quizState.questions.length) ? 100 : Math.round(correctCount * 3.3);
+
+    // Show Score Popup with Confetti
+    showScorePopup(finalScore);
+
+    // Prepare Data for Apps Script
     const payload = {
         action: 'submit_quiz',
         email: quizState.email,
-        name: quizState.name, // Send the entered name
+        name: quizState.name,
         answers: quizState.answers,
         score: finalScore,
         timestamp: new Date().toISOString()
     };
 
-    // Submit to Apps Script
-    // (We use no-cors so we can't read response, but we assume it works)
+    // Submit in background
     fetch(APPS_SCRIPT_URL, {
         mode: 'no-cors',
         method: 'POST',
@@ -293,12 +304,55 @@ async function finishQuiz(auto = false) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
-    }).then(() => {
-        // Redirect to Leaderboard with user info for personalization
-        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}&score=${finalScore}`;
-    }).catch(err => {
-        console.error('Submission failed', err);
-        // Fallback redirect
-        window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}&score=${finalScore}`;
-    });
+    }).catch(err => console.error('Submission failed', err));
+
+    // Redirect to leaderboard after a few seconds
+    setTimeout(() => {
+        // Fade out transition
+        document.getElementById('scoreModal').style.opacity = '0';
+        document.getElementById('quizInterface').style.opacity = '0';
+        document.getElementById('quizInterface').style.transition = 'opacity 1s ease';
+
+        setTimeout(() => {
+            window.location.href = `leaderboard.html?email=${encodeURIComponent(quizState.email)}&name=${encodeURIComponent(quizState.name)}&score=${finalScore}`;
+        }, 1000);
+    }, 4000); // Show popup for 4 seconds
+}
+
+function showScorePopup(score) {
+    const modal = document.getElementById('scoreModal');
+    const scoreVal = document.getElementById('finalScoreValue');
+    const card = modal.querySelector('.card');
+
+    scoreVal.textContent = score;
+    modal.style.display = 'flex';
+    modal.style.opacity = '0';
+
+    // Fade in animation
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+
+        // Confetti effect
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 6000 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function () {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            // since particles fall down, start a bit higher than random
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    }, 10);
 }

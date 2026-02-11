@@ -1,62 +1,362 @@
 [
     {
         "id": 1,
-        "question": "Seorang laki-laki berusia 50 tahun datang dengan keluhan nyeri dada kiri yang menjalar ke lengan kiri. Nyeri dirasakan seperti tertindih beban berat. Pemeriksaan EKG menunjukkan elevasi segmen ST di lead II, III, dan aVF. Diagnosis yang paling mungkin adalah?",
+        "question": "Seorang mahasiswa praktik bedah mengalami kesemutan dan kelemahan pada ekstensi pergelangan tangan setelah terjatuh dan menahan tubuh dengan lengan kanan. Pemeriksaan menunjukkan penurunan kekuatan ekstensor pada pergelangan dan jari serta kehilangan sensasi pada area dorso lateral tangan. Saraf manakah yang paling mungkin mengalami cedera?",
         "options": {
-            "A": "STEMI Anterior",
-            "B": "STEMI Inferior",
-            "C": "STEMI Lateral",
-            "D": "NSTEMI",
-            "E": "Angina Pektoris Stabil"
+            "A": "Median",
+            "B": "Ulnar",
+            "C": "Radial",
+            "D": "Musculocutaneous",
+            "E": "Axillary"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 2,
+        "question": "Seorang pasien dengan gangguan pernapasan hiperaktif mengalami hiperventilasi. Bagaimana perubahan gas darah arteria yang paling mungkin terjadi?",
+        "options": {
+            "A": "PCO2 meningkat, pH menurun",
+            "B": "PCO2 menurun, pH meningkat",
+            "C": "PCO2 meningkat, pH meningkat",
+            "D": "PCO2 menurun, pH menurun",
+            "E": "PCO2 tidak berubah, pH meningkat"
         },
         "correct": "B"
     },
     {
-        "id": 2,
-        "question": "Bakteri penyebab utama faringitis streptokokus adalah?",
-        "options": {
-            "A": "Staphylococcus aureus",
-            "B": "Streptococcus pneumoniae",
-            "C": "Streptococcus pyogenes",
-            "D": "Haemophilus influenzae",
-            "E": "Corynebacterium diphtheriae"
-        },
-        "correct": "C"
-    },
-    {
         "id": 3,
-        "question": "Lapisan meninges yang paling luar dan tebal disebut?",
+        "question": "Seorang bayi mengalami ikterus hemolitik. Tes laboratorium menunjukkan hemolisis intravaskular, dan enzim eritrosit yang direduksi adalah pyruvate kinase. Defisiensi enzim ini menyebabkan anemia hemolitik karena gangguan pada tahap mana dari metabolisme eritrosit?",
         "options": {
-            "A": "Pia mater",
-            "B": "Arachnoid mater",
-            "C": "Dura mater",
-            "D": "Subarachnoid space",
-            "E": "Epidural space"
+            "A": "Glikogenolisis",
+            "B": "Glukoneogenesis",
+            "C": "Siklus Krebs",
+            "D": "Glikolisis (akhir) — langkah pembentukan piruvat",
+            "E": "Jalur pentosa fosfat"
         },
-        "correct": "C"
+        "correct": "D"
     },
     {
         "id": 4,
-        "question": "Enzim yang berperan mengubah angiotensin I menjadi angiotensin II terutama diproduksi di?",
+        "question": "Seorang pasien lama menggunakan warfarin untuk terapi antikoagulan. Setelah mulai mengonsumsi obat baru yang merupakan inhibitor kuat CYP3A4, pasien mengalami perdarahan lebih mudah dan INR meningkat. Obat kelas manakah yang kemungkinan besar menyebabkan interaksi ini?",
         "options": {
-            "A": "Hati",
-            "B": "Ginjal",
-            "C": "Paru-paru",
-            "D": "Jantung",
-            "E": "Pankreas"
+            "A": "Rifampisin",
+            "B": "Fenitoin",
+            "C": "Eritromisin (makrolida)",
+            "D": "Karbamazepin",
+            "E": "St. John's wort"
         },
         "correct": "C"
     },
     {
         "id": 5,
-        "question": "Obat anti-tuberkulosis (OAT) yang memiliki efek samping utama neuritis optik adalah?",
+        "question": "Seorang pasien dewasa muda datang dengan gejala demam, leher kaku, dan fotofobia. Pada orang dewasa penyebab bakteri paling sering meningitis community-acquired adalah?",
         "options": {
-            "A": "Isoniazid",
-            "B": "Rifampisin",
-            "C": "Pirazinamid",
-            "D": "Etambutol",
-            "E": "Streptomisin"
+            "A": "Escherichia coli",
+            "B": "Group B Streptococcus",
+            "C": "Streptococcus pneumoniae",
+            "D": "Listeria monocytogenes",
+            "E": "Neisseria gonorrhoeae"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 6,
+        "question": "Pemeriksaan histopatologi jaringan menunjukkan agregat makrofag epitelioid dengan sel raksasa multinuklear dan batas limfositik. Temuan ini paling konsisten dengan tipe inflamasi:",
+        "options": {
+            "A": "Supuratif (neutrofil dominan)",
+            "B": "Fibrinous",
+            "C": "Granulomatous",
+            "D": "Serous",
+            "E": "Aseptik degeneratif"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 7,
+        "question": "Pasangan sehat keduanya pembawa (carrier) untuk penyakit resesif autosomal. Risiko setiap kehamilan menghasilkan anak yang terkena penyakit tersebut adalah:",
+        "options": {
+            "A": "0%",
+            "B": "25%",
+            "C": "50%",
+            "D": "75%",
+            "E": "100%"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 8,
+        "question": "Seorang pasien dengan nefropati menunjukkan penebalan membran basalis glomerulus dan deposit imun pada elektrone mikroskop. Gambaran ini paling sesuai dengan diagnosis:",
+        "options": {
+            "A": "Minimal change disease",
+            "B": "Focal segmental glomerulosclerosis",
+            "C": "Membranous nephropathy",
+            "D": "Membranoproliferative glomerulonephritis",
+            "E": "IgA nephropathy"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 9,
+        "question": "Goodpasture syndrome (antibodi anti-basement membrane) termasuk mekanisme hipersensitivitas:",
+        "options": {
+            "A": "Tipe I (IgE mediated)",
+            "B": "Tipe II (antibody-mediated)",
+            "C": "Tipe III (immune-complex)",
+            "D": "Tipe IV (seluler)",
+            "E": "Campuran tipe II dan III"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 10,
+        "question": "Seorang pasien menunjukkan hiperpigmentasi kulit, hipotensi ortostatik, dan hiponatremia. Kadar ACTH ditemukan tinggi. Diagnosis yang paling mungkin adalah:",
+        "options": {
+            "A": "Secondary adrenal insufficiency (pituitary)",
+            "B": "Primary adrenal insufficiency (Addison disease)",
+            "C": "Cushing syndrome",
+            "D": "Primary aldosteronism",
+            "E": "Pheochromocytoma"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 11,
+        "question": "Seorang bayi baru lahir ditemukan memiliki holosistolik murmur paling jelas di kiri bawah sternal border disertai bunyi yang lebih keras saat inspirasi. Diagnosis mana yang paling mungkin?",
+        "options": {
+            "A": "Tetralogy of Fallot",
+            "B": "Patent ductus arteriosus",
+            "C": "Ventricular septal defect (VSD)",
+            "D": "Atrial septal defect",
+            "E": "Pulmonic stenosis"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 12,
+        "question": "Furosemid (loop diuretic) bekerja secara langsung menghambat transporter ion di segmen tubulus ginjal yang mana?",
+        "options": {
+            "A": "Proximal convoluted tubule (sodium–glucose cotransporter)",
+            "B": "Thin descending limb",
+            "C": "Thick ascending limb (Na+-K+-2Cl– cotransporter)",
+            "D": "Distal convoluted tubule (Na+-Cl– cotransporter)",
+            "E": "Collecting duct (ENaC)"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 13,
+        "question": "Seorang pasien dewasa muda mengalami parestesia perifer, kehilangan propriosepsi dan ataksia. Pemeriksaan darah menunjukkan MCV meningkat. Defisiensi vitamin apa yang paling konsisten dengan gambaran ini?",
+        "options": {
+            "A": "Vitamin B1 (tiamin)",
+            "B": "Vitamin B6 (pyridoxine)",
+            "C": "Vitamin B12 (cobalamin)",
+            "D": "Folat (B9)",
+            "E": "Vitamin C"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 14,
+        "question": "Kegagalan penutupan neuroporus kranialis selama perkembangan embrionik menyebabkan kelainan:",
+        "options": {
+            "A": "Spina bifida occulta",
+            "B": "Encephalocele",
+            "C": "Anencephaly",
+            "D": "Meningocele",
+            "E": "Hidronefrosis"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 15,
+        "question": "Pasien DM tipe 1 datang dengan mual, muntah, napas cepat dan dalam (Kussmaul), glukosa darah tinggi, dan ketonuria. Gangguan metabolik utama yang terjadi adalah:",
+        "options": {
+            "A": "Metabolic alkalosis",
+            "B": "Non-anion gap metabolic acidosis",
+            "C": "High anion gap metabolic acidosis",
+            "D": "Respiratory acidosis",
+            "E": "Respiratory alkalosis"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 16,
+        "question": "Suatu kondisi dimana sebagian alveoli terperfusi tetapi tidak mendapat aliran darah (dead space) meningkat. Kondisi klinis mana yang paling menimbulkan peningkatan dead space alveolar?",
+        "options": {
+            "A": "Pneumonia lobaris",
+            "B": "Pulmonary embolism",
+            "C": "Asthma exacerbation",
+            "D": "Pulmonary edema kardiogenik",
+            "E": "Atelectasis"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 17,
+        "question": "Lesi TB reaktivasi pada paru-paru paling sering ditemukan pada:",
+        "options": {
+            "A": "Basis paru (lower lobes)",
+            "B": "Apex paru (upper lobes)",
+            "C": "Mediastinum",
+            "D": "Pleura",
+            "E": "Hilar lymph nodes"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 18,
+        "question": "Terapi utama untuk penyakit Parkinson adalah pemberian levodopa karena ia:",
+        "options": {
+            "A": "Menghambat MAO-B",
+            "B": "Agonis dopamin langsung pada reseptor D2",
+            "C": "Prekursor dopamin yang dapat menembus sawar darah otak dan dikonversi menjadi dopamin",
+            "D": "Menghambat reseptor muskarinik",
+            "E": "Menghambat COMT"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 19,
+        "question": "Obat antidot yang paling tepat untuk keracunan acetaminophen (paracetamol) akut adalah:",
+        "options": {
+            "A": "Naloxone",
+            "B": "Flumazenil",
+            "C": "N-acetylcysteine",
+            "D": "Activated charcoal",
+            "E": "Deferoxamine"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 20,
+        "question": "Pada apoptosis yang dimediasi intrinsik, molekul sinyal yang memicu aktivasi kaspase sering berasal dari:",
+        "options": {
+            "A": "Lisosom",
+            "B": "Mitokondria (cytochrome c release)",
+            "C": "Endoplasmic reticulum",
+            "D": "Sitoplasma akibat infeksi bakteri",
+            "E": "Inti sel (DNA fragmentasi sebagai trigger primer)"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 21,
+        "question": "Sebuah tes diagnostik mempunyai sensitivitas tinggi tetapi spesifisitas rendah. Jika prevalensi penyakit di populasi meningkat, apa yang terjadi pada positive predictive value (PPV)?",
+        "options": {
+            "A": "PPV menurun",
+            "B": "PPV meningkat",
+            "C": "PPV tetap sama",
+            "D": "PPV berubah random",
+            "E": "Tidak dapat ditentukan"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 22,
+        "question": "Organisme Gram-positif berbentuk kokus, katalase negatif, alfa-hemolisis pada agar darah, sensitif terhadap optochin. Organisme tersebut kemungkinan besar adalah:",
+        "options": {
+            "A": "Staphylococcus aureus",
+            "B": "Streptococcus pyogenes (group A)",
+            "C": "Streptococcus pneumoniae",
+            "D": "Enterococcus faecalis",
+            "E": "Viridans streptococci"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 23,
+        "question": "Seorang pasien dengan gejala hipertiroid, tremor, penurunan berat badan, dan exophthalmos. Penyakit autoimun yang paling mungkin bertanggung jawab adalah:",
+        "options": {
+            "A": "Hashimoto thyroiditis",
+            "B": "Subacute (de Quervain) thyroiditis",
+            "C": "Graves disease",
+            "D": "Toxic multinodular goiter",
+            "E": "Riedel thyroiditis"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 24,
+        "question": "Hormon pankreas yang merangsang sekresi bikarbonat dari pankreas setelah makanan asam di duodenum adalah:",
+        "options": {
+            "A": "Sekretin",
+            "B": "Kolecystokinin (CCK)",
+            "C": "Gastrin",
+            "D": "Motilin",
+            "E": "Gastric inhibitory peptide (GIP)"
+        },
+        "correct": "A"
+    },
+    {
+        "id": 25,
+        "question": "Seorang pasien asma mendapat resep propranolol oral untuk aritmia. Mengapa propranolol dapat memperburuk gejala asma?",
+        "options": {
+            "A": "Propranolol meningkatkan sekresi mukus",
+            "B": "Propranolol antagonis beta-2 sehingga menyebabkan bronkokonstriksi",
+            "C": "Propranolol menstimulasi reseptor muskarinik",
+            "D": "Propranolol meningkatkan produksi leukotrien",
+            "E": "Propranolol menurunkan kesadaran pasien"
+        },
+        "correct": "B"
+    },
+    {
+        "id": 26,
+        "question": "Temuan papilledema pada pemeriksaan funduskopi menunjukkan:",
+        "options": {
+            "A": "Glaukoma akut",
+            "B": "Katarak",
+            "C": "Tekanan intraokular menurun",
+            "D": "Tekanan intrakranial meningkat",
+            "E": "Iskemia retina lokal"
         },
         "correct": "D"
+    },
+    {
+        "id": 27,
+        "question": "Seorang pasien pasca-fraktur ekstremitas bawah mengalami nyeri hebat yang tidak proposional, tegang pada kompartemen otot, kesemutan, dan deformitas progresif. Diagnosis segera yang perlu dipertimbangkan adalah:",
+        "options": {
+            "A": "Deep vein thrombosis",
+            "B": "Osteomyelitis",
+            "C": "Compartment syndrome",
+            "D": "Cellulitis",
+            "E": "Rhabdomyolysis"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 28,
+        "question": "Hitung anion gap pada pasien dengan Na+ = 140 mmol/L, Cl– = 100 mmol/L, HCO3– = 18 mmol/L. (Gunakan rumus: AG = Na+ – (Cl– + HCO3–))",
+        "options": {
+            "A": "10",
+            "B": "18",
+            "C": "22",
+            "D": "28",
+            "E": "32"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 29,
+        "question": "Virus RNA sense-positif (positive-sense single-stranded RNA) dapat langsung digunakan sebagai mRNA oleh ribosom inang. Contoh virus berikut yang termasuk positive-sense RNA virus adalah:",
+        "options": {
+            "A": "Influenza A virus",
+            "B": "HIV (Retrovirus)",
+            "C": "Poliovirus",
+            "D": "Rabies virus",
+            "E": "Adenovirus"
+        },
+        "correct": "C"
+    },
+    {
+        "id": 30,
+        "question": "Dalam epidemiologi, angka reproduksi dasar (R₀) menggambarkan rata-rata jumlah kasus baru yang dihasilkan oleh satu kasus infeksius dalam populasi yang sepenuhnya rentan. Jika R₀ < 1, artinya:",
+        "options": {
+            "A": "Infeksi akan menyebar secara eksponensial",
+            "B": "Infeksi akan cenderung menurun dan mati sendiri",
+            "C": "Sebagian populasi sudah kebal",
+            "D": "Setiap orang dapat terinfeksi lebih dari sekali",
+            "E": "Tidak ada penyakit yang mungkin muncul"
+        },
+        "correct": "B"
     }
 ]
