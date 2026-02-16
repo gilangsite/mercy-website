@@ -8,8 +8,7 @@
             "C": "Radial",
             "D": "Musculocutaneous",
             "E": "Axillary"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 2,
@@ -20,8 +19,7 @@
             "C": "PCO2 meningkat, pH meningkat",
             "D": "PCO2 menurun, pH menurun",
             "E": "PCO2 tidak berubah, pH meningkat"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 3,
@@ -32,8 +30,7 @@
             "C": "Siklus Krebs",
             "D": "Glikolisis (akhir) — langkah pembentukan piruvat",
             "E": "Jalur pentosa fosfat"
-        },
-        "correct": "D"
+        }
     },
     {
         "id": 4,
@@ -44,8 +41,7 @@
             "C": "Eritromisin (makrolida)",
             "D": "Karbamazepin",
             "E": "St. John's wort"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 5,
@@ -56,8 +52,7 @@
             "C": "Streptococcus pneumoniae",
             "D": "Listeria monocytogenes",
             "E": "Neisseria gonorrhoeae"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 6,
@@ -68,8 +63,7 @@
             "C": "Granulomatous",
             "D": "Serous",
             "E": "Aseptik degeneratif"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 7,
@@ -80,8 +74,7 @@
             "C": "50%",
             "D": "75%",
             "E": "100%"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 8,
@@ -92,8 +85,7 @@
             "C": "Membranous nephropathy",
             "D": "Membranoproliferative glomerulonephritis",
             "E": "IgA nephropathy"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 9,
@@ -104,8 +96,7 @@
             "C": "Tipe III (immune-complex)",
             "D": "Tipe IV (seluler)",
             "E": "Campuran tipe II dan III"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 10,
@@ -116,8 +107,7 @@
             "C": "Cushing syndrome",
             "D": "Primary aldosteronism",
             "E": "Pheochromocytoma"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 11,
@@ -128,8 +118,7 @@
             "C": "Ventricular septal defect (VSD)",
             "D": "Atrial septal defect",
             "E": "Pulmonic stenosis"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 12,
@@ -140,8 +129,7 @@
             "C": "Thick ascending limb (Na+-K+-2Cl– cotransporter)",
             "D": "Distal convoluted tubule (Na+-Cl– cotransporter)",
             "E": "Collecting duct (ENaC)"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 13,
@@ -152,8 +140,7 @@
             "C": "Vitamin B12 (cobalamin)",
             "D": "Folat (B9)",
             "E": "Vitamin C"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 14,
@@ -164,8 +151,7 @@
             "C": "Anencephaly",
             "D": "Meningocele",
             "E": "Hidronefrosis"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 15,
@@ -176,8 +162,7 @@
             "C": "High anion gap metabolic acidosis",
             "D": "Respiratory acidosis",
             "E": "Respiratory alkalosis"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 16,
@@ -188,8 +173,7 @@
             "C": "Asthma exacerbation",
             "D": "Pulmonary edema kardiogenik",
             "E": "Atelectasis"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 17,
@@ -200,8 +184,7 @@
             "C": "Mediastinum",
             "D": "Pleura",
             "E": "Hilar lymph nodes"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 18,
@@ -212,8 +195,7 @@
             "C": "Prekursor dopamin yang dapat menembus sawar darah otak dan dikonversi menjadi dopamin",
             "D": "Menghambat reseptor muskarinik",
             "E": "Menghambat COMT"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 19,
@@ -224,8 +206,7 @@
             "C": "N-acetylcysteine",
             "D": "Activated charcoal",
             "E": "Deferoxamine"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 20,
@@ -236,8 +217,7 @@
             "C": "Endoplasmic reticulum",
             "D": "Sitoplasma akibat infeksi bakteri",
             "E": "Inti sel (DNA fragmentasi sebagai trigger primer)"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 21,
@@ -248,8 +228,7 @@
             "C": "PPV tetap sama",
             "D": "PPV berubah random",
             "E": "Tidak dapat ditentukan"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 22,
@@ -260,8 +239,7 @@
             "C": "Streptococcus pneumoniae",
             "D": "Enterococcus faecalis",
             "E": "Viridans streptococci"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 23,
@@ -272,8 +250,7 @@
             "C": "Graves disease",
             "D": "Toxic multinodular goiter",
             "E": "Riedel thyroiditis"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 24,
@@ -284,8 +261,7 @@
             "C": "Gastrin",
             "D": "Motilin",
             "E": "Gastric inhibitory peptide (GIP)"
-        },
-        "correct": "A"
+        }
     },
     {
         "id": 25,
@@ -296,8 +272,7 @@
             "C": "Propranolol menstimulasi reseptor muskarinik",
             "D": "Propranolol meningkatkan produksi leukotrien",
             "E": "Propranolol menurunkan kesadaran pasien"
-        },
-        "correct": "B"
+        }
     },
     {
         "id": 26,
@@ -308,8 +283,7 @@
             "C": "Tekanan intraokular menurun",
             "D": "Tekanan intrakranial meningkat",
             "E": "Iskemia retina lokal"
-        },
-        "correct": "D"
+        }
     },
     {
         "id": 27,
@@ -320,8 +294,7 @@
             "C": "Compartment syndrome",
             "D": "Cellulitis",
             "E": "Rhabdomyolysis"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 28,
@@ -332,8 +305,7 @@
             "C": "22",
             "D": "28",
             "E": "32"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 29,
@@ -344,8 +316,7 @@
             "C": "Poliovirus",
             "D": "Rabies virus",
             "E": "Adenovirus"
-        },
-        "correct": "C"
+        }
     },
     {
         "id": 30,
@@ -356,7 +327,6 @@
             "C": "Sebagian populasi sudah kebal",
             "D": "Setiap orang dapat terinfeksi lebih dari sekali",
             "E": "Tidak ada penyakit yang mungkin muncul"
-        },
-        "correct": "B"
+        }
     }
 ]

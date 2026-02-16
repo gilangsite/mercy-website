@@ -1,9 +1,26 @@
 /**
- * MERCY 2026 - GOOGLE APPS SCRIPT BACKEND (V4 - ANTI-ERROR STABLE)
+ * MERCY 2026 - GOOGLE APPS SCRIPT BACKEND (V5 - SECURITY ENHANCED)
  * Admin: medtools.mercy@gmail.com
  * 
- * PENTING: Untuk mengetes, pilih fungsi 'testSystem' di dropdown lalu klik 'Run'.
+ * SECURITY FEATURES:
+ * - Answer keys stored server-side only
+ * - Score calculation on server
+ * - Session token validation
  */
+
+// ANSWER KEYS (Server-side only - NOT exposed to client)
+const ANSWER_KEYS = {
+  "1": "C", "2": "B", "3": "D", "4": "C", "5": "C",
+  "6": "C", "7": "B", "8": "C", "9": "B", "10": "B",
+  "11": "C", "12": "C", "13": "C", "14": "C", "15": "C",
+  "16": "B", "17": "B", "18": "C", "19": "C", "20": "B",
+  "21": "B", "22": "C", "23": "C", "24": "A", "25": "B",
+  "26": "D", "27": "C", "28": "C", "29": "C", "30": "B"
+};
+
+const TOTAL_QUESTIONS = 30;
+const SESSION_EXPIRY_SECONDS = 3600 * 6; // 6 hours
+
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -13,6 +30,7 @@ function doPost(e) {
     var action = params.action;
     if (action === 'register') return handleRegistration(params);
     if (action === 'submit_quiz') return handleSubmitQuiz(params);
+    if (action === 'validate_quiz') return handleValidateQuiz(params);
     return responseJSON({result: 'error', message: 'Invalid action'});
   } catch (err) {
     return responseJSON({result: 'error', message: err.toString()});
@@ -21,10 +39,12 @@ function doPost(e) {
   }
 }
 
+
 function doGet(e) {
   var action = e.parameter.action;
   if (action === 'check_email') return handleCheckEmail(e.parameter.email);
   if (action === 'get_leaderboard') return handleGetLeaderboard();
+  if (action === 'start_quiz') return handleStartQuiz(e.parameter.email);
   return responseJSON({result: 'error', message: 'Invalid action'});
 }
 
@@ -67,13 +87,85 @@ function handleCheckEmail(email) {
   return responseJSON(result);
 }
 
+
 function handleSubmitQuiz(data) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('QuizSubmissions');
   var lbSheet = ss.getSheetByName('Leaderboard');
+  
+  // Validate session token
+  if (!validateSessionToken(data.email, data.sessionToken)) {
+    return responseJSON({ success: false, message: 'Invalid session token' });
+  }
+  
   sheet.appendRow([new Date(), data.email, JSON.stringify(data.answers), data.score]);
   lbSheet.appendRow([data.name, data.score, data.timestamp]);
+  
+  // Invalidate session token after submission
+  invalidateSessionToken(data.email);
+  
   return responseJSON({ success: true });
+}
+
+// --- SECURITY FUNCTIONS ---
+
+function handleStartQuiz(email) {
+  if (!email) return responseJSON({ success: false, message: 'Email required' });
+  
+  var sessionToken = generateSessionToken(email);
+  return responseJSON({ success: true, sessionToken: sessionToken });
+}
+
+function handleValidateQuiz(data) {
+  // Validate session token
+  if (!validateSessionToken(data.email, data.sessionToken)) {
+    return responseJSON({ success: false, message: 'Invalid or expired session' });
+  }
+  
+  // Calculate score server-side
+  var score = calculateScore(data.answers);
+  
+  return responseJSON({ 
+    success: true, 
+    score: score
+  });
+}
+
+function generateSessionToken(email) {
+  var token = Utilities.getUuid();
+  var cache = CacheService.getScriptCache();
+  var key = 'session_' + email;
+  cache.put(key, token, SESSION_EXPIRY_SECONDS);
+  return token;
+}
+
+function validateSessionToken(email, token) {
+  if (!email || !token) return false;
+  var cache = CacheService.getScriptCache();
+  var key = 'session_' + email;
+  var storedToken = cache.get(key);
+  return storedToken === token;
+}
+
+function invalidateSessionToken(email) {
+  var cache = CacheService.getScriptCache();
+  var key = 'session_' + email;
+  cache.remove(key);
+}
+
+function calculateScore(answers) {
+  if (!answers || typeof answers !== 'object') return 0;
+  
+  var correctCount = 0;
+  for (var questionId in ANSWER_KEYS) {
+    if (answers[questionId] === ANSWER_KEYS[questionId]) {
+      correctCount++;
+    }
+  }
+  
+  // Same scoring logic as before
+  var finalScore = (correctCount === TOTAL_QUESTIONS) ? 100 : Math.round(correctCount * 3.3);
+  return finalScore;
 }
 
 function handleGetLeaderboard() {

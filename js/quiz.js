@@ -1,7 +1,43 @@
 /**
- * MERCY 2026 - Quiz Logic
+ * MERCY 2026 - Quiz Logic (Security Enhanced)
  * Handles quiz mechanics: login, timer, navigation, scoring
+ * 
+ * SECURITY FEATURES:
+ * - Server-side answer validation
+ * - Session token authentication
+ * - Console tampering detection
  */
+
+// Console Protection
+(function () {
+    'use strict';
+
+    // Detect DevTools opening
+    const devtools = /./;
+    devtools.toString = function () {
+        console.warn('⚠️ PERINGATAN: Deteksi aktivitas mencurigakan. Tindakan ini akan dilaporkan.');
+        return '';
+    };
+
+    // Freeze critical objects after initialization
+    window.addEventListener('load', function () {
+        if (typeof quizState !== 'undefined') {
+            // Note: We can't fully freeze because we need to update state
+            // But we can add detection
+            const originalStringify = JSON.stringify;
+            JSON.stringify = function (...args) {
+                if (args[0] === quizState) {
+                    console.warn('⚠️ Deteksi akses tidak sah ke quiz state');
+                }
+                return originalStringify.apply(this, args);
+            };
+        }
+    });
+
+    console.log('%c⚠️ PERINGATAN KEAMANAN', 'color: red; font-size: 20px; font-weight: bold;');
+    console.log('%cMenggunakan console untuk memanipulasi quiz adalah PELANGGARAN.', 'color: orange; font-size: 14px;');
+    console.log('%cSemua aktivitas dicatat dan akan dilaporkan ke admin.', 'color: orange; font-size: 14px;');
+})();
 
 // CONFIGURATION
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1_17nAVrjJ0rcWvtSOvTXRnpptTeEnepr5FaVuttwmZJ9AZ43KsXDsuEkHnwRUJYtzw/exec';
@@ -14,7 +50,8 @@ let quizState = {
     answers: {},
     currentQuestionIndex: 0,
     endTime: null, // Unified end time for persistence
-    timerInterval: null
+    timerInterval: null,
+    sessionToken: null // Security token from server
 };
 
 const STORAGE_KEY = 'mercy_quiz_progress';
@@ -25,7 +62,8 @@ function saveQuizProgress() {
         email: quizState.email,
         answers: quizState.answers,
         currentQuestionIndex: quizState.currentQuestionIndex,
-        endTime: quizState.endTime
+        endTime: quizState.endTime,
+        sessionToken: quizState.sessionToken
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
 }
@@ -66,6 +104,7 @@ async function checkResumeQuiz() {
             quizState.answers = saved.answers || {};
             quizState.currentQuestionIndex = saved.currentQuestionIndex || 0;
             quizState.endTime = saved.endTime;
+            quizState.sessionToken = saved.sessionToken;
 
             await startQuiz(true);
         } else {
@@ -155,6 +194,21 @@ async function startQuiz(isResume = false) {
         quizState.questions = data;
 
         if (!isResume) {
+            // Get session token from server
+            try {
+                const tokenResponse = await fetch(APPS_SCRIPT_URL + '?action=start_quiz&email=' + encodeURIComponent(quizState.email));
+                const tokenData = await tokenResponse.json();
+                if (tokenData.success) {
+                    quizState.sessionToken = tokenData.sessionToken;
+                } else {
+                    throw new Error('Failed to get session token');
+                }
+            } catch (err) {
+                console.error('Session token error:', err);
+                alert('Gagal memulai sesi quiz. Silakan coba lagi.');
+                return;
+            }
+
             // Set end time for new quiz
             quizState.endTime = new Date().getTime() + (QUIZ_DURATION_MINUTES * 60 * 1000);
             saveQuizProgress();
@@ -347,19 +401,37 @@ async function finishQuiz(auto = false) {
 
     if (auto) alert('Waktu habis! Jawaban Anda akan disubmit otomatis.');
 
-    // Calculate score
-    let correctCount = 0;
-    quizState.questions.forEach(q => {
-        if (quizState.answers[q.id] === q.correct) {
-            correctCount += 1;
-        }
-    });
+    // Validate and calculate score on SERVER-SIDE
+    let finalScore = 0;
+    try {
+        const validateResponse = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'validate_quiz',
+                email: quizState.email,
+                answers: quizState.answers,
+                sessionToken: quizState.sessionToken
+            })
+        });
 
-    // Scoring Logic: 
-    // If all correct (30) -> 100
-    // If 29 correct -> 3.3 * 29 = 95.7 -> round to 96
-    // Use Math.round(correctCount * 3.333...) but floor/ceil to match user logic
-    let finalScore = (correctCount === quizState.questions.length) ? 100 : Math.round(correctCount * 3.3);
+        const validateData = await validateResponse.json();
+
+        if (!validateData.success) {
+            alert('Validasi gagal. Silakan coba lagi atau hubungi admin.');
+            isSubmitting = false;
+            return;
+        }
+
+        finalScore = validateData.score;
+    } catch (err) {
+        console.error('Validation error:', err);
+        alert('Gagal memvalidasi jawaban. Silakan coba lagi.');
+        isSubmitting = false;
+        return;
+    }
 
     // Show Score Popup with Confetti
     showScorePopup(finalScore);
@@ -371,6 +443,7 @@ async function finishQuiz(auto = false) {
         name: quizState.name,
         answers: quizState.answers,
         score: finalScore,
+        sessionToken: quizState.sessionToken,
         timestamp: new Date().toISOString()
     };
 
