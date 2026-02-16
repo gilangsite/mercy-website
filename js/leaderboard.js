@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 10000);
 });
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1_17nAVrjJ0rcWvtSOvTXRnpptTeEnepr5FaVuttwmZJ9AZ43KsXDsuEkHnwRUJYtzw/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVM4EKlT1iSUUj7970-YdYAynbqpUaBAcTSMlJ_H_4Th9tSB4D0vCPscMzlb5BRihIBQ/exec';
 let currentUserEmail = localStorage.getItem('mercy_quiz_email') || '';
 let isGenerating = false;
 
