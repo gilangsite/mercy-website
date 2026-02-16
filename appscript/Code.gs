@@ -100,13 +100,17 @@ function handleSubmitQuiz(data) {
     return responseJSON({ success: false, message: 'Invalid session token' });
   }
   
-  sheet.appendRow([new Date(), data.email, JSON.stringify(data.answers), data.score]);
-  lbSheet.appendRow([data.name, data.score, data.timestamp]);
+  // SECURITY FIX: Re-calculate score on server, ignore client-provided score
+  var serverCalculatedScore = calculateScore(data.answers);
+  
+  // Use serverCalculatedScore for spreadsheet and leaderboard
+  sheet.appendRow([new Date(), data.email, JSON.stringify(data.answers), serverCalculatedScore]);
+  lbSheet.appendRow([data.name, serverCalculatedScore, data.timestamp]);
   
   // Invalidate session token after submission
   invalidateSessionToken(data.email);
   
-  return responseJSON({ success: true });
+  return responseJSON({ success: true, verifiedScore: serverCalculatedScore });
 }
 
 // --- SECURITY FUNCTIONS ---
