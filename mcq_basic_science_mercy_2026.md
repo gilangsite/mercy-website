@@ -280,6 +280,3 @@ e. Tidak ada penyakit yang mungkin muncul
 30. b
 
 ---
-
-*File siap di-copy atau diunduh. Jika mau, aku bisa: (1) mengubah jumlah soal; (2) fokus ke topik tertentu (mis. hanya anatomi + fisiologi); atau (3) buat versi printable/slide.*
-

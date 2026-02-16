@@ -13,14 +13,66 @@ let quizState = {
     questions: [],
     answers: {},
     currentQuestionIndex: 0,
-    startTime: null,
+    endTime: null, // Unified end time for persistence
     timerInterval: null
 };
+
+const STORAGE_KEY = 'mercy_quiz_progress';
+
+function saveQuizProgress() {
+    const dataToSave = {
+        name: quizState.name,
+        email: quizState.email,
+        answers: quizState.answers,
+        currentQuestionIndex: quizState.currentQuestionIndex,
+        endTime: quizState.endTime
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+}
+
+function loadSavedProgress() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return null;
+    try {
+        const data = JSON.parse(saved);
+        // Check if timer has expired
+        if (data.endTime && new Date().getTime() > data.endTime) {
+            localStorage.removeItem(STORAGE_KEY);
+            return null;
+        }
+        return data;
+    } catch (e) {
+        return null;
+    }
+}
+
+function clearQuizProgress() {
+    localStorage.removeItem(STORAGE_KEY);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initLogin();
     initQuizControls();
+    checkResumeQuiz();
 });
+
+async function checkResumeQuiz() {
+    const saved = loadSavedProgress();
+    if (saved) {
+        // Confirm resume
+        if (confirm(`Sesi quiz untuk ${saved.name} ditemukan. Lanjutkan?`)) {
+            quizState.name = saved.name;
+            quizState.email = saved.email;
+            quizState.answers = saved.answers || {};
+            quizState.currentQuestionIndex = saved.currentQuestionIndex || 0;
+            quizState.endTime = saved.endTime;
+
+            await startQuiz(true);
+        } else {
+            clearQuizProgress();
+        }
+    }
+}
 
 // --- Login & Validation ---
 function initLogin() {
@@ -89,7 +141,7 @@ function initLogin() {
 }
 
 // --- Quiz Core Logic ---
-async function startQuiz() {
+async function startQuiz(isResume = false) {
     // Hide login, show quiz
     document.getElementById('quizLogin').style.display = 'none';
     document.getElementById('quizInterface').classList.remove('hidden');
@@ -102,10 +154,29 @@ async function startQuiz() {
         // Use all 30 questions
         quizState.questions = data;
 
+        if (!isResume) {
+            // Set end time for new quiz
+            quizState.endTime = new Date().getTime() + (QUIZ_DURATION_MINUTES * 60 * 1000);
+            saveQuizProgress();
+        }
+
         setupNavigation();
-        loadQuestion(0);
+        loadQuestion(quizState.currentQuestionIndex);
         startTimer();
+
+        // Re-apply "answered" class to nav buttons if resuming
+        if (isResume) {
+            Object.keys(quizState.answers).forEach(qId => {
+                const qIndex = quizState.questions.findIndex(q => q.id == qId);
+                if (qIndex !== -1) {
+                    const btnNav = document.getElementById(`nav-btn-${qIndex}`);
+                    if (btnNav) btnNav.classList.add('answered');
+                }
+            });
+            updateAnswerCount();
+        }
     } catch (e) {
+        console.error(e);
         alert('Gagal memuat soal. Silakan refresh halaman.');
     }
 }
@@ -141,6 +212,8 @@ function loadQuestion(index) {
     // Update Text
     document.getElementById('currentQNum').textContent = index + 1;
     document.getElementById('questionText').textContent = q.question;
+
+    saveQuizProgress();
 
     // Update Options
     const optionsList = document.getElementById('optionsList');
@@ -187,6 +260,7 @@ function selectAnswer(questionId, answerKey, btnElement) {
     btnNav.classList.add('answered');
 
     updateAnswerCount();
+    saveQuizProgress();
 
     // Auto Next (after small delay)
     setTimeout(() => {
@@ -203,24 +277,27 @@ function updateAnswerCount() {
 
 // --- Timer ---
 function startTimer() {
-    let timeLeft = Math.floor(QUIZ_DURATION_MINUTES * 60);
     const display = document.getElementById('timerDisplay');
 
     quizState.timerInterval = setInterval(() => {
-        timeLeft--;
+        const now = new Date().getTime();
+        const timeLeftMs = quizState.endTime - now;
 
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = Math.floor(timeLeft % 60);
+        if (timeLeftMs <= 0) {
+            clearInterval(quizState.timerInterval);
+            display.textContent = "00:00";
+            finishQuiz(true); // Auto submit
+            return;
+        }
+
+        const timeLeftSeconds = Math.floor(timeLeftMs / 1000);
+        const minutes = Math.floor(timeLeftSeconds / 60);
+        const seconds = Math.floor(timeLeftSeconds % 60);
 
         display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-        if (timeLeft <= 300) { // Last 5 mins
+        if (timeLeftSeconds <= 300) { // Last 5 mins
             display.style.color = '#EF4444';
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(quizState.timerInterval);
-            finishQuiz(true); // Auto submit
         }
     }, 1000);
 }
@@ -266,6 +343,7 @@ async function finishQuiz(auto = false) {
     isSubmitting = true;
 
     clearInterval(quizState.timerInterval);
+    clearQuizProgress();
 
     if (auto) alert('Waktu habis! Jawaban Anda akan disubmit otomatis.');
 
