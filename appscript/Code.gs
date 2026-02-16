@@ -40,11 +40,13 @@ function doPost(e) {
 }
 
 
+
 function doGet(e) {
   var action = e.parameter.action;
   if (action === 'check_email') return handleCheckEmail(e.parameter.email);
   if (action === 'get_leaderboard') return handleGetLeaderboard();
   if (action === 'start_quiz') return handleStartQuiz(e.parameter.email);
+  if (action === 'validate_quiz') return handleValidateQuizGet(e.parameter);
   return responseJSON({result: 'error', message: 'Invalid action'});
 }
 
@@ -124,6 +126,29 @@ function handleValidateQuiz(data) {
   
   // Calculate score server-side
   var score = calculateScore(data.answers);
+  
+  return responseJSON({ 
+    success: true, 
+    score: score
+  });
+}
+
+function handleValidateQuizGet(params) {
+  // Parse answers from URL parameter
+  var answers = {};
+  try {
+    answers = JSON.parse(params.answers);
+  } catch (e) {
+    return responseJSON({ success: false, message: 'Invalid answers format' });
+  }
+  
+  // Validate session token
+  if (!validateSessionToken(params.email, params.sessionToken)) {
+    return responseJSON({ success: false, message: 'Invalid or expired session' });
+  }
+  
+  // Calculate score server-side
+  var score = calculateScore(answers);
   
   return responseJSON({ 
     success: true, 

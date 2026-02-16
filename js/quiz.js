@@ -404,19 +404,14 @@ async function finishQuiz(auto = false) {
     // Validate and calculate score on SERVER-SIDE
     let finalScore = 0;
     try {
-        const validateResponse = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                action: 'validate_quiz',
-                email: quizState.email,
-                answers: quizState.answers,
-                sessionToken: quizState.sessionToken
-            })
-        });
+        // Use GET request to avoid CORS issues
+        const validateUrl = APPS_SCRIPT_URL +
+            '?action=validate_quiz' +
+            '&email=' + encodeURIComponent(quizState.email) +
+            '&sessionToken=' + encodeURIComponent(quizState.sessionToken) +
+            '&answers=' + encodeURIComponent(JSON.stringify(quizState.answers));
 
+        const validateResponse = await fetch(validateUrl);
         const validateData = await validateResponse.json();
 
         if (!validateData.success) {
