@@ -72,7 +72,7 @@
             </div>
 
             <div class="sidebar-info">
-                <div>Terjawab: <span id="answeredCount" class="font-bold">0</span>/25</div>
+                <div>Terjawab: <span id="answeredCount" class="font-bold">0</span>/10</div>
             </div>
 
             <div class="question-nav" id="questionNav">
@@ -180,7 +180,7 @@
                     // Detect total questions from UI (e.g., "0/30")
                     const parentText = answeredCountEl.parentElement.textContent;
                     const totalMatch = parentText.match(/\/(\d+)/);
-                    const total = totalMatch ? parseInt(totalMatch[1]) : 30;
+                    const total = totalMatch ? parseInt(totalMatch[1]) : 10;
 
                     if (current >= total && !hasShownAuto) {
                         hasShownAuto = true;
