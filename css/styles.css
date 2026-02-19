@@ -830,14 +830,12 @@ a:hover {
    ============================================ */
 .reward-card {
   text-align: center;
-  border-top: 5px solid var(--color-blue-saturated);
 }
 
 .reward-card .card-image {
   width: 100%;
   height: 250px;
   object-fit: cover;
-  /* Changed to cover to match other cards */
   border-radius: var(--radius-lg);
   margin-bottom: var(--spacing-md);
   transition: transform var(--transition-base);
@@ -866,6 +864,13 @@ a:hover {
 .discount-card {
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.discount-card .card-title {
+  margin-top: auto;
 }
 
 .discount-tag {
@@ -898,6 +903,7 @@ a:hover {
   align-items: center;
   gap: 10px;
   margin-top: 10px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .card-price {
@@ -910,6 +916,25 @@ a:hover {
   font-size: 0.9rem;
   text-decoration: line-through;
   color: var(--color-gray-dark);
+}
+
+.claim-discount-btn {
+  width: 100%;
+  margin-top: var(--spacing-sm);
+  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.claim-discount-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  opacity: 0.9;
 }
 
 @media (max-width: 768px) {
