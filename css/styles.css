@@ -889,56 +889,92 @@ a:hover {
   margin-bottom: 0.5rem;
 }
 
-/* Winner Specific Styles (Hierarchy) */
+/* Winner Specific Styles (Hierarchy) - Exclusive Blue & White Theme */
 
-/* 1st Winner - Gold & Prominent */
+/* General Card Text for all Reward Cards to ensure they follow the theme */
+.reward-card .card-title {
+  background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-blue-saturated) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 1st Winner - Deep Navy, 3D Depth, Subtle Texture */
 .winner-1 {
-  border: 2px solid rgba(251, 191, 36, 0.5);
-  /* Gold */
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 243, 199, 0.3) 100%);
-  box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.15), 0 10px 10px -5px rgba(245, 158, 11, 0.1);
+  border: 2px solid var(--color-navy);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(224, 231, 255, 0.4) 100%),
+    radial-gradient(circle at 2px 2px, rgba(30, 58, 138, 0.05) 1px, transparent 0);
+  background-size: 100% 100%, 20px 20px;
+  /* Dot texture */
+  box-shadow:
+    0 20px 40px -10px rgba(30, 58, 138, 0.2),
+    0 10px 20px -5px rgba(30, 58, 138, 0.1),
+    inset 0 0 0 2px rgba(30, 58, 138, 0.05);
+  /* Double border look */
   transform: scale(1.05);
   z-index: 10;
 }
 
+.winner-1::after {
+  content: 'OFFICIAL WINNER';
+  position: absolute;
+  top: 15px;
+  right: -25px;
+  background: var(--color-navy);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 4px 30px;
+  transform: rotate(45deg);
+  letter-spacing: 1px;
+}
+
 .winner-1:hover {
-  transform: scale(1.05) translateY(-8px);
-  box-shadow: 0 25px 30px -5px rgba(245, 158, 11, 0.25), 0 10px 10px -5px rgba(245, 158, 11, 0.1);
+  transform: scale(1.05) translateY(-12px);
+  box-shadow:
+    0 30px 50px -12px rgba(30, 58, 138, 0.25),
+    0 15px 25px -8px rgba(30, 58, 138, 0.15);
 }
 
 .winner-1 .card-title {
-  background: linear-gradient(135deg, #B45309 0%, #F59E0B 50%, #d97706 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
 }
 
-/* 2nd Winner - Silver */
+/* 2nd Winner - Professional Blue */
 .winner-2 {
-  border: 1px solid rgba(229, 231, 235, 0.8);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(243, 244, 246, 0.4) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(239, 246, 255, 0.5) 100%);
+  box-shadow:
+    0 15px 30px -8px rgba(30, 58, 138, 0.1),
+    0 8px 15px -4px rgba(30, 58, 138, 0.05);
 }
 
-.winner-2 .card-title {
-  background: linear-gradient(135deg, #4B5563 0%, #9CA3AF 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.winner-2:hover {
+  transform: translateY(-8px);
+  border-color: var(--color-blue-saturated);
 }
 
-/* 3rd Winner - Bronze */
+/* 3rd Winner - Clean Minimalist White/Blue */
 .winner-3 {
-  border: 1px solid rgba(253, 186, 116, 0.4);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 237, 213, 0.3) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.5) 100%);
+  box-shadow:
+    0 10px 20px -5px rgba(30, 58, 138, 0.05);
 }
 
-.winner-3 .card-title {
-  background: linear-gradient(135deg, #92400E 0%, #D97706 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.winner-3:hover {
+  transform: translateY(-8px);
+  border-color: var(--color-blue-light);
+}
+
+/* 3D Container Effect for the Grid */
+#rewards .grid-3 {
+  perspective: 1000px;
 }
 
 .reward-info {
