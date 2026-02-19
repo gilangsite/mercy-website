@@ -123,6 +123,22 @@
         </main>
     </div>
 
+    <!-- Confirm Submit Modal -->
+    <div id="confirmSubmitModal" class="modal"
+        style="display: none; align-items: center; justify-content: center; z-index: 6000; background: rgba(0,0,0,0.8);">
+        <div class="card text-center" style="max-width: 400px; padding: 2rem; border-radius: 20px;">
+            <p style="font-size: 1.125rem; font-weight: 500; margin-bottom: 2rem; color: var(--color-navy);">
+                kamu sudah menjawab semua soal, lanjut untuk submit jawaban kamu?
+            </p>
+            <div class="btn-group" style="justify-content: center; gap: 15px;">
+                <button id="btnCancelSubmit" class="btn"
+                    style="background: #EF4444; color: white; padding: 0.6rem 1.5rem; border-radius: 8px; border: none; min-width: 100px; cursor: pointer; font-weight: 600;">belum</button>
+                <button id="btnConfirmSubmit" class="btn"
+                    style="background: #3B82F6; color: white; padding: 0.6rem 1.5rem; border-radius: 8px; border: none; min-width: 100px; cursor: pointer; font-weight: 600;">submit</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Score Popup Modal -->
     <div id="scoreModal" class="modal"
         style="display: none; align-items: center; justify-content: center; z-index: 5000; background: rgba(0,0,0,0.8); transition: opacity 0.5s ease;">
@@ -139,6 +155,42 @@
     </div>
 
     <script src="js/quiz.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnFinish = document.getElementById('btnFinish');
+            const confirmModal = document.getElementById('confirmSubmitModal');
+            const btnCancel = document.getElementById('btnCancelSubmit');
+            const btnConfirm = document.getElementById('btnConfirmSubmit');
+
+            if (btnFinish) {
+                // Wait for quiz.js to potentially attach its own listeners, then replace the button
+                setTimeout(() => {
+                    const newBtn = btnFinish.cloneNode(true);
+                    btnFinish.parentNode.replaceChild(newBtn, btnFinish);
+
+                    newBtn.addEventListener('click', (e) => {
+                        confirmModal.style.display = 'flex';
+                    });
+                }, 1000);
+            }
+
+            btnCancel.addEventListener('click', () => {
+                confirmModal.style.display = 'none';
+            });
+
+            btnConfirm.addEventListener('click', () => {
+                confirmModal.style.display = 'none';
+                const originalConfirm = window.confirm;
+                window.confirm = () => true; // Bypass internal confirm
+                if (typeof finishQuiz === 'function') {
+                    finishQuiz();
+                }
+                setTimeout(() => {
+                    window.confirm = originalConfirm;
+                }, 1000);
+            });
+        });
+    </script>
 </body>
 
 </html>
