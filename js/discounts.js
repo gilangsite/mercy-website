@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', function () {
             message = `Hai Medi, nama aku ${name} aku mau berlangganan ${product} pakai discount mercy ${discount}%.`;
         }
 
-        const waNumber = "6287788836000";
+        let waNumber = "6287788836000"; // Store
+        if (type === 'academy') {
+            waNumber = "6288289688036";
+        }
         const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 
         window.open(waLink, '_blank');
