@@ -830,6 +830,44 @@ a:hover {
    ============================================ */
 .reward-card {
   text-align: center;
+  position: relative;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Shine Effect */
+.reward-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      rgba(255, 255, 255, 0) 100%);
+  transform: skewX(-25deg);
+  transition: all 0.75s;
+  pointer-events: none;
+}
+
+.reward-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.reward-card:hover::before {
+  left: 150%;
 }
 
 .reward-card .card-image {
@@ -839,6 +877,68 @@ a:hover {
   border-radius: var(--radius-lg);
   margin-bottom: var(--spacing-md);
   transition: transform var(--transition-base);
+}
+
+.reward-card ul {
+  text-align: left;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.reward-card ul li {
+  margin-bottom: 0.5rem;
+}
+
+/* Winner Specific Styles (Hierarchy) */
+
+/* 1st Winner - Gold & Prominent */
+.winner-1 {
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  /* Gold */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 243, 199, 0.3) 100%);
+  box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.15), 0 10px 10px -5px rgba(245, 158, 11, 0.1);
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.winner-1:hover {
+  transform: scale(1.05) translateY(-8px);
+  box-shadow: 0 25px 30px -5px rgba(245, 158, 11, 0.25), 0 10px 10px -5px rgba(245, 158, 11, 0.1);
+}
+
+.winner-1 .card-title {
+  background: linear-gradient(135deg, #B45309 0%, #F59E0B 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* 2nd Winner - Silver */
+.winner-2 {
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(243, 244, 246, 0.4) 100%);
+}
+
+.winner-2 .card-title {
+  background: linear-gradient(135deg, #4B5563 0%, #9CA3AF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 3rd Winner - Bronze */
+.winner-3 {
+  border: 1px solid rgba(253, 186, 116, 0.4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 237, 213, 0.3) 100%);
+}
+
+.winner-3 .card-title {
+  background: linear-gradient(135deg, #92400E 0%, #D97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .reward-info {
