@@ -72,7 +72,7 @@
             </div>
 
             <div class="sidebar-info">
-                <div>Terjawab: <span id="answeredCount" class="font-bold">0</span>/30</div>
+                <div>Terjawab: <span id="answeredCount" class="font-bold">0</span>/25</div>
             </div>
 
             <div class="question-nav" id="questionNav">
@@ -125,16 +125,18 @@
 
     <!-- Confirm Submit Modal -->
     <div id="confirmSubmitModal" class="modal"
-        style="display: none; align-items: center; justify-content: center; z-index: 6000; background: rgba(0,0,0,0.8);">
-        <div class="card text-center" style="max-width: 400px; padding: 2rem; border-radius: 20px;">
-            <p style="font-size: 1.125rem; font-weight: 500; margin-bottom: 2rem; color: var(--color-navy);">
+        style="display: none; align-items: center; justify-content: center; z-index: 6000; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
+        <div class="modal-content"
+            style="text-align: center; max-width: 420px; padding: 2.5rem; border-radius: var(--radius-lg); border: none; box-shadow: var(--shadow-xl);">
+            <p
+                style="font-size: 1.1rem; font-weight: 500; margin-bottom: 2.25rem; color: #000; line-height: 1.6; font-family: var(--font-primary);">
                 kamu sudah menjawab semua soal, lanjut untuk submit jawaban kamu?
             </p>
-            <div class="btn-group" style="justify-content: center; gap: 15px;">
+            <div class="btn-group" style="display: flex; justify-content: center; gap: 12px;">
                 <button id="btnCancelSubmit" class="btn"
-                    style="background: #EF4444; color: white; padding: 0.6rem 1.5rem; border-radius: 8px; border: none; min-width: 100px; cursor: pointer; font-weight: 600;">belum</button>
+                    style="background: #EF4444; color: #fff; padding: 0.65rem 1.8rem; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 600; font-family: var(--font-primary); font-size: 0.9rem; transition: all var(--transition-base);">belum</button>
                 <button id="btnConfirmSubmit" class="btn"
-                    style="background: #3B82F6; color: white; padding: 0.6rem 1.5rem; border-radius: 8px; border: none; min-width: 100px; cursor: pointer; font-weight: 600;">submit</button>
+                    style="background: var(--color-blue-saturated); color: #fff; padding: 0.65rem 1.8rem; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 600; font-family: var(--font-primary); font-size: 0.9rem; transition: all var(--transition-base);">submit</button>
             </div>
         </div>
     </div>
@@ -157,20 +159,45 @@
     <script src="js/quiz.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const btnFinish = document.getElementById('btnFinish');
             const confirmModal = document.getElementById('confirmSubmitModal');
             const btnCancel = document.getElementById('btnCancelSubmit');
             const btnConfirm = document.getElementById('btnConfirmSubmit');
+            const answeredCountEl = document.getElementById('answeredCount');
+            const btnFinish = document.getElementById('btnFinish');
 
+            let hasShownAuto = false;
+
+            const showConfirm = () => {
+                confirmModal.style.display = 'flex';
+            };
+
+            // Monitor answer count for automatic trigger
+            if (answeredCountEl) {
+                const observer = new MutationObserver(() => {
+                    const countText = answeredCountEl.textContent.trim();
+                    const current = parseInt(countText);
+
+                    // Detect total questions from UI (e.g., "0/30")
+                    const parentText = answeredCountEl.parentElement.textContent;
+                    const totalMatch = parentText.match(/\/(\d+)/);
+                    const total = totalMatch ? parseInt(totalMatch[1]) : 30;
+
+                    if (current >= total && !hasShownAuto) {
+                        hasShownAuto = true;
+                        showConfirm();
+                    } else if (current < total) {
+                        hasShownAuto = false;
+                    }
+                });
+                observer.observe(answeredCountEl, { childList: true, subtree: true, characterData: true });
+            }
+
+            // Override Finish Button
             if (btnFinish) {
-                // Wait for quiz.js to potentially attach its own listeners, then replace the button
                 setTimeout(() => {
                     const newBtn = btnFinish.cloneNode(true);
                     btnFinish.parentNode.replaceChild(newBtn, btnFinish);
-
-                    newBtn.addEventListener('click', (e) => {
-                        confirmModal.style.display = 'flex';
-                    });
+                    newBtn.addEventListener('click', showConfirm);
                 }, 1000);
             }
 
@@ -180,8 +207,9 @@
 
             btnConfirm.addEventListener('click', () => {
                 confirmModal.style.display = 'none';
+                // Bypass browser confirm popup
                 const originalConfirm = window.confirm;
-                window.confirm = () => true; // Bypass internal confirm
+                window.confirm = () => true;
                 if (typeof finishQuiz === 'function') {
                     finishQuiz();
                 }
