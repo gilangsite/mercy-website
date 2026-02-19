@@ -869,8 +869,14 @@ a:hover {
   height: 100%;
 }
 
+.discount-card .card-image {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
+}
+
 .discount-card .card-title {
-  margin-top: auto;
+  margin-top: 0;
 }
 
 .discount-tag {
