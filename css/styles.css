@@ -5,6 +5,7 @@
    Colors: Navy Blue Gradient, White, Subtle Gray
    ============================================ */
 
+/* Font loading handled in HTML for better performance and display control */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 /* ============================================
@@ -63,6 +64,9 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  overflow-x: hidden;
+  /* Prevent scrollbar jumps */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -73,6 +77,7 @@ body {
   background-color: var(--color-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
 /* ============================================
@@ -146,6 +151,10 @@ a:hover {
 .section {
   padding: var(--spacing-2xl) 0;
   position: relative;
+  min-height: 400px;
+  /* Reserve minimum height to prevent large layout jumps */
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 400px;
 }
 
 .section:nth-child(even) {
@@ -806,7 +815,14 @@ a:hover {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+/* Visibility hidden for reserving space if needed */
+.invisible-space {
+  visibility: hidden;
+  height: auto;
+  min-height: 100px;
 }
 
 .block {
@@ -943,6 +959,7 @@ a:hover {
   letter-spacing: -0.02em;
   background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
   -webkit-background-clip: text;
+  background-clip: text;
 }
 
 /* 2nd Winner - Professional Blue */

@@ -197,7 +197,8 @@ body {
     color: #111;
     margin-bottom: var(--spacing-lg);
     word-break: break-word;
-    /* Prevent overflow from long words */
+    min-height: 80px;
+    /* Reserve space for even short questions */
 }
 
 .options-list {

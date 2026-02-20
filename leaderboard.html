@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard - INC Mercy 2026</title>
     <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Preconnect and Preload Fonts for zero CLS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Favicon -->
@@ -107,7 +116,7 @@
         <div class="container" style="max-width: 800px;">
             <div class="text-center mb-4">
                 <i class="fas fa-trophy" style="font-size: 3rem; color: #FFD700; margin-bottom: 1rem;"></i>
-                <div id="personalMessageContainer" class="hidden mb-4">
+                <div id="personalMessageContainer" class="hidden mb-4" style="min-height: 100px;">
                     <h2 id="personalHeader"
                         style="margin-bottom: 0.5rem; color: var(--color-navy); transition: all 0.3s; text-align: center; text-wrap: balance;">
                         Hebat, [Nama]!</h2>
@@ -134,7 +143,7 @@
             <!-- Leaderboard Container with scrollable table -->
             <div id="leaderboardContainer" class="mb-4">
                 <div
-                    style="max-height: 500px; overflow-y: auto; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); border: 1px solid var(--color-gray-medium);">
+                    style="min-height: 300px; max-height: 500px; overflow-y: auto; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); border: 1px solid var(--color-gray-medium);">
                     <table class="leaderboard-table" style="margin-bottom: 0; box-shadow: none; border-radius: 0;">
                         <thead style="position: sticky; top: 0; z-index: 5;">
                             <tr>
