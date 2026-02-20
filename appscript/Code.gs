@@ -99,9 +99,12 @@ function handleSubmitQuiz(data) {
   // SECURITY FIX: Re-calculate score on server, ignore client-provided score
   var serverCalculatedScore = calculateScore(data.answers);
   
+  // Provide a default for timeSpent if missing (e.g. older versions)
+  var timeSpent = data.timeSpent || 999999;
+  
   // Use serverCalculatedScore for spreadsheet and leaderboard
-  sheet.appendRow([new Date(), data.email, JSON.stringify(data.answers), serverCalculatedScore]);
-  lbSheet.appendRow([data.name, serverCalculatedScore, data.timestamp]);
+  sheet.appendRow([new Date(), data.email, JSON.stringify(data.answers), serverCalculatedScore, timeSpent]);
+  lbSheet.appendRow([data.name, serverCalculatedScore, data.timestamp, timeSpent]);
   
   // Invalidate session token after submission
   invalidateSessionToken(data.email);
@@ -197,13 +200,14 @@ function handleGetLeaderboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Leaderboard');
   if (!sheet || sheet.getLastRow() < 2) return responseJSON([]);
-  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues();
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
   var leaderboard = data.map(function(row) {
-    return { name: row[0], score: row[1], time: row[2] };
+    return { name: row[0], score: row[1], time: row[2], timeSpent: row[3] || 999999 };
   });
   leaderboard.sort(function(a, b) {
     if (b.score !== a.score) return b.score - a.score;
-    return new Date(a.time) - new Date(b.time);
+    if (a.timeSpent !== b.timeSpent) return a.timeSpent - b.timeSpent; // lower time is better
+    return new Date(a.time) - new Date(b.time); // earlier submission is better
   });
   return responseJSON(leaderboard);
 }
