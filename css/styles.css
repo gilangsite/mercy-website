@@ -153,8 +153,6 @@ a:hover {
   position: relative;
   min-height: 400px;
   /* Reserve minimum height to prevent large layout jumps */
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 400px;
 }
 
 .section:nth-child(even) {
