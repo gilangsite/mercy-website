@@ -226,6 +226,41 @@
                     window.confirm = originalConfirm;
                 }, 1000);
             });
+
+            // 1. Auto-save progress ketika keluar atau ganti tab
+            window.addEventListener('beforeunload', () => {
+                if (typeof saveQuizProgress === 'function') saveQuizProgress();
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    if (typeof saveQuizProgress === 'function') saveQuizProgress();
+                }
+            });
+
+            // 2. Auto Fullscreen saat menekan mulai kompetisi
+            const btnLogin = document.getElementById('btnLogin');
+            if (btnLogin) {
+                btnLogin.addEventListener('click', () => {
+                    let elem = document.documentElement;
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen().catch(err => console.log(err));
+                    } else if (elem.webkitRequestFullscreen) {
+                        elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) {
+                        elem.msRequestFullscreen();
+                    }
+                });
+            }
+
+            // 3. Prevent klik kanan & berikan warning jika keluar fullscreen
+            document.addEventListener('contextmenu', event => event.preventDefault());
+
+            document.addEventListener('fullscreenchange', () => {
+                const quizInterface = document.getElementById('quizInterface');
+                if (!document.fullscreenElement && quizInterface && !quizInterface.classList.contains('hidden')) {
+                    alert('⚠️ PERINGATAN KECURANGAN: Anda keluar dari mode FULLSCREEN! Jangan membuka tab baru. Semua aktivitas mencurigakan diawasi sistem.');
+                }
+            });
         });
     </script>
 </body>
