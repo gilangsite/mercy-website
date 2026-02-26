@@ -1,112 +1,277 @@
 [
     {
         "id": 1,
-        "question": "Seorang mahasiswa praktik bedah mengalami kesemutan dan kelemahan pada ekstensi pergelangan tangan setelah terjatuh dan menahan tubuh dengan lengan kanan. Pemeriksaan menunjukkan penurunan kekuatan ekstensor pada pergelangan dan jari serta kehilangan sensasi pada area dorso lateral tangan. Saraf manakah yang paling mungkin mengalami cedera?",
+        "question": "Seorang mahasiswa melakukan praktikum jaringan dan mengamati preparat epitel pada saluran kemih yang mengalami distensi berkala. Epitel tersebut berubah bentuk dari kuboid menjadi gepeng saat organ mengembang. Struktur epitel manakah yang paling mungkin diamati mahasiswa tersebut?",
         "options": {
-            "A": "Median",
-            "B": "Ulnar",
-            "C": "Radial",
-            "D": "Musculocutaneous",
-            "E": "Axillary"
+            "A": "Selapis pipih sederhana",
+            "B": "Pseudostratified columnar bersilia",
+            "C": "Epitel transisional (urothelium)",
+            "D": "Selapis kuboid sederhana",
+            "E": "Epitel stratifikasi skuamosa"
         }
     },
     {
         "id": 2,
-        "question": "Seorang pasien dengan gangguan pernapasan hiperaktif mengalami hiperventilasi. Bagaimana perubahan gas darah arteria yang paling mungkin terjadi?",
+        "question": "Dalam siklus Krebs, satu molekul asetil-CoA menghasilkan sejumlah NADH, FADH\u2082, dan GTP. Jika fokus pada produksi NADH, proses enzimatik manakah yang memberi kontribusi terbesar terhadap pembentukan NADH dalam siklus tersebut?",
         "options": {
-            "A": "PCO2 meningkat, pH menurun",
-            "B": "PCO2 menurun, pH meningkat",
-            "C": "PCO2 meningkat, pH meningkat",
-            "D": "PCO2 menurun, pH menurun",
-            "E": "PCO2 tidak berubah, pH meningkat"
+            "A": "Konversi sukkinil-CoA \u2192 sukinat oleh sukkinil-CoA sintetase",
+            "B": "Oksidasi isositrat menjadi \u03b1-ketoglutarat oleh isositrat dehidrogenase",
+            "C": "Reduksi fumarat menjadi malat oleh fumarase",
+            "D": "Dehidrogenasi sukinat menjadi fumarat oleh sukkinat dehidrogenase",
+            "E": "Fosforilasi oksidatif pada rantai elektronik"
         }
     },
     {
         "id": 3,
-        "question": "Seorang bayi mengalami ikterus hemolitik. Tes laboratorium menunjukkan hemolisis intravaskular, dan enzim eritrosit yang direduksi adalah pyruvate kinase. Defisiensi enzim ini menyebabkan anemia hemolitik karena gangguan pada tahap mana dari metabolisme eritrosit?",
+        "question": "Seseorang meneliti hormon yang mengatur keseimbangan air di ginjal. Hormon yang meningkatkan permeabilitas kanal kolektivus terhadap air bekerja melalui peningkatan jumlah aquaporin-2 pada membran apikal. Hormon manakah yang bertanggung jawab atas mekanisme ini?",
         "options": {
-            "A": "Glikogenolisis",
-            "B": "Glukoneogenesis",
-            "C": "Siklus Krebs",
-            "D": "Glikolisis (akhir) — langkah pembentukan piruvat",
-            "E": "Jalur pentosa fosfat"
+            "A": "Aldosteron",
+            "B": "Renin",
+            "C": "ADH (vasopresin)",
+            "D": "ANP",
+            "E": "Kortisol"
         }
     },
     {
         "id": 4,
-        "question": "Seorang pasien lama menggunakan warfarin untuk terapi antikoagulan. Setelah mulai mengonsumsi obat baru yang merupakan inhibitor kuat CYP3A4, pasien mengalami perdarahan lebih mudah dan INR meningkat. Obat kelas manakah yang kemungkinan besar menyebabkan interaksi ini?",
+        "question": "Sebuah mutasi pada reseptor membran yang mengandung domain tirosin kinase menyebabkan gangguan signal transduction untuk hormon metabolik. Reseptor jenis manakah yang bila rusak akan mengakibatkan penurunan efektifitas sinyal insulin?",
         "options": {
-            "A": "Rifampisin",
-            "B": "Fenitoin",
-            "C": "Eritromisin (makrolida)",
-            "D": "Karbamazepin",
-            "E": "St. John's wort"
+            "A": "G-protein coupled receptor (GPCR)",
+            "B": "Ion channel receptor",
+            "C": "Receptor tyrosine kinase (RTK)",
+            "D": "Nuclear receptor",
+            "E": "Cytokine receptor tanpa tirosin kinase intrinsik"
         }
     },
     {
         "id": 5,
-        "question": "Seorang pasien dewasa muda datang dengan gejala demam, leher kaku, dan fotofobia. Pada orang dewasa penyebab bakteri paling sering meningitis community-acquired adalah?",
+        "question": "Pada pemeriksaan histologi jaringan saraf pusat, terlihat sel dengan banyak proses sitoplasma yang membentuk selubung mielin untuk beberapa akson. Sel tipe manakah yang bertanggung jawab untuk pembentukan mielin di sistem saraf pusat?",
         "options": {
-            "A": "Escherichia coli",
-            "B": "Group B Streptococcus",
-            "C": "Streptococcus pneumoniae",
-            "D": "Listeria monocytogenes",
-            "E": "Neisseria gonorrhoeae"
+            "A": "Sel Schwann",
+            "B": "Oligodendrosit",
+            "C": "Astrosit",
+            "D": "Sel mikroglia",
+            "E": "Sel ependim"
         }
     },
     {
         "id": 6,
-        "question": "Pemeriksaan histopatologi jaringan menunjukkan agregat makrofag epitelioid dengan sel raksasa multinuklear dan batas limfositik. Temuan ini paling konsisten dengan tipe inflamasi:",
+        "question": "Seorang peneliti menimbang jalur metabolik yang berperan dalam pembentukan NADPH untuk sintesis lipid dan detoksifikasi oksidatif. Jalur metabolik manakah yang terutama menghasilkan NADPH dalam sitoplasma sel hepar?",
         "options": {
-            "A": "Supuratif (neutrofil dominan)",
-            "B": "Fibrinous",
-            "C": "Granulomatous",
-            "D": "Serous",
-            "E": "Aseptik degeneratif"
+            "A": "Glikolisis",
+            "B": "Siklus Krebs",
+            "C": "Jalur pentosa fosfat (HMP shunt)",
+            "D": "Glukoneogenesis",
+            "E": "Beta-oksidasi"
         }
     },
     {
         "id": 7,
-        "question": "Pasangan sehat keduanya pembawa (carrier) untuk penyakit resesif autosomal. Risiko setiap kehamilan menghasilkan anak yang terkena penyakit tersebut adalah:",
+        "question": "Dalam diferensiasi sel darah merah, adanya defisiensi vitamin tertentu mengganggu sintesis porfirin dan menyebabkan gangguan neuromuskular serta beriberi-like symptoms. Vitamin manakah yang kekurangannya paling berkaitan dengan gangguan ini (mis. beriberi)?",
         "options": {
-            "A": "0%",
-            "B": "25%",
-            "C": "50%",
-            "D": "75%",
-            "E": "100%"
+            "A": "Vitamin B2 (riboflavin)",
+            "B": "Vitamin B3 (niacin)",
+            "C": "Vitamin B1 (tiamin)",
+            "D": "Vitamin B6 (pyridoxine)",
+            "E": "Vitamin B12 (cobalamin)"
         }
     },
     {
         "id": 8,
-        "question": "Seorang pasien dengan nefropati menunjukkan penebalan membran basalis glomerulus dan deposit imun pada elektrone mikroskop. Gambaran ini paling sesuai dengan diagnosis:",
+        "question": "Suatu enzim kunci pada biosintesis kolesterol menjadi target terapi hipolipemik. Obat golongan statin bekerja menghambat enzim ini sehingga menurunkan produksi kolesterol endogen. Enzim manakah yang menjadi target langsung statin?",
         "options": {
-            "A": "Minimal change disease",
-            "B": "Focal segmental glomerulosclerosis",
-            "C": "Membranous nephropathy",
-            "D": "Membranoproliferative glomerulonephritis",
-            "E": "IgA nephropathy"
+            "A": "HMG-CoA synthase",
+            "B": "HMG-CoA reductase",
+            "C": "Squalene epoxidase",
+            "D": "Lanosterol synthase",
+            "E": "ACAT (acyl-CoA:cholesterol acyltransferase)"
         }
     },
     {
         "id": 9,
-        "question": "Goodpasture syndrome (antibodi anti-basement membrane) termasuk mekanisme hipersensitivitas:",
+        "question": "Pada pemeriksaan mikroskopis sekresi kelenjar adrenal korteks, zona yang menghasilkan glukokortikoid tampak paling tebal dibanding zona lain. Zona manakah yang bertanggung jawab untuk produksi kortisol?",
         "options": {
-            "A": "Tipe I (IgE mediated)",
-            "B": "Tipe II (antibody-mediated)",
-            "C": "Tipe III (immune-complex)",
-            "D": "Tipe IV (seluler)",
-            "E": "Campuran tipe II dan III"
+            "A": "Zona glomerulosa",
+            "B": "Zona fasciculata",
+            "C": "Zona reticularis",
+            "D": "Medula adrenal",
+            "E": "Korteks perifer non-spesifik"
         }
     },
     {
         "id": 10,
-        "question": "Seorang pasien menunjukkan hiperpigmentasi kulit, hipotensi ortostatik, and hiponatremia. Kadar ACTH ditemukan tinggi. Diagnosis yang paling mungkin adalah:",
+        "question": "Seorang mahasiswa menemukan bahwa dalam preparat pencernaan, epitel usus halus memiliki banyak sel goblet dan villi yang memaksimalkan absorpsi nutrisi. Tipe epitel yang melapisi duodenum untuk fungsi absorpsi dan sekresi tersebut adalah:",
         "options": {
-            "A": "Secondary adrenal insufficiency (pituitary)",
-            "B": "Primary adrenal insufficiency (Addison disease)",
-            "C": "Cushing syndrome",
-            "D": "Primary aldosteronism",
-            "E": "Pheochromocytoma"
+            "A": "Selapis pipih sederhana",
+            "B": "Selapis kuboid sederhana",
+            "C": "Pseudostratified bersilia",
+            "D": "Selapis kolumnar sederhana dengan mikrovili",
+            "E": "Epitel transisional"
+        }
+    },
+    {
+        "id": 11,
+        "question": "Seorang pria 47 tahun datang dengan nyeri dada yang menetap sejak 3 jam, segera diperiksa EKG menunjukkan elevasi ST pada prekordial V1\u2013V4. Ia juga menderita hipertensi dan hipercolesterolemia. Arteri koroner manakah yang paling mungkin ter-occlude, menyebabkan gambaran EKG tersebut?",
+        "options": {
+            "A": "Right coronary artery (RCA)",
+            "B": "Left circumflex artery (LCx)",
+            "C": "Left anterior descending artery (LAD)",
+            "D": "Ramus intermedius",
+            "E": "Diagonal branch"
+        }
+    },
+    {
+        "id": 12,
+        "question": "Seorang wanita 28 tahun mengalami demam tinggi, nyeri sendi, dan ruam makulopapular setelah beberapa minggu menggunakan obat antibiotik. Pemeriksaan laboratorium menunjukkan eosinofilia dan fungsi hati terganggu. Gambaran klinis ini mengarah pada reaksi hipersensitivitas obat dengan keterlibatan sistemik. Tipe hipersensitivitas manakah yang paling mungkin bertanggung jawab?",
+        "options": {
+            "A": "Tipe I (IgE mediated)",
+            "B": "Tipe II (antibody-mediated cytotoxic)",
+            "C": "Tipe III (immune complex mediated)",
+            "D": "Tipe IV (delayed, T-cell mediated)",
+            "E": "Tipe V (stimulatory autoantibody)"
+        }
+    },
+    {
+        "id": 13,
+        "question": "Seorang anak berusia 2 minggu datang dengan jaundice yang progresif sejak hari ketiga hidup, disertai tinja pucat dan urin gelap. Pemeriksaan darah menunjukkan ikterus berupa bilirubin direk yang meningkat. Dari etiologi neonatal, kondisi manakah yang paling mungkin menyebabkan kolestasis neonatal dengan peningkatan bilirubin direk?",
+        "options": {
+            "A": "Fisiologis neonatal jaundice",
+            "B": "Hemolisis akibat inkompatibilitas ABO",
+            "C": "Atresia bilier (biliary atresia)",
+            "D": "Sindrom Gilbert",
+            "E": "Sindrom Crigler-Najjar"
+        }
+    },
+    {
+        "id": 14,
+        "question": "Seorang pasien DM tipe 2 datang dengan pembengkakan tungkai disertai nyeri tekan, demam, dan kulit kemerahan dengan batas tidak tegas. Pemeriksaan menunjukkan leukositosis dan CRP tinggi. Kondisi infeksi kulit subkutan ini sering disebabkan oleh streptokokus atau stafilokokus. Diagnosis paling mungkin adalah:",
+        "options": {
+            "A": "Cellulitis",
+            "B": "Erysipelas",
+            "C": "Necrotizing fasciitis",
+            "D": "Impetigo bullosa",
+            "E": "Phlegmon"
+        }
+    },
+    {
+        "id": 15,
+        "question": "Pasien wanita 32 tahun mengeluhkan amenore primer dan infertilitas. Pemeriksaan hormonal menunjukkan kadar FSH dan LH rendah, sedangkan pemeriksaan MRI hipofisis menunjukkan massa kistik di selubung tuberkular yang tidak menginvasi sinus kavernosus. Kondisi yang paling mungkin adalah:",
+        "options": {
+            "A": "Adenoma hipofisis hormon-sekresi (prolaktinoma)",
+            "B": "Kista Rathke (Rathke's cleft cyst)",
+            "C": "Craniopharyngioma",
+            "D": "Glioma hipotalamus",
+            "E": "Meningioma selaput sella"
+        }
+    },
+    {
+        "id": 16,
+        "question": "Seorang lansia 70 tahun datang dengan keluhan penurunan memori progresif dan gangguan fungsi eksekutif selama 2 tahun terakhir. Pemeriksaan kognitif menunjukkan penurunan memori episodik dominan dan perubahan perilaku sedikit. Gambaran klinis yang paling konsisten dengan diagnosis berikut adalah:",
+        "options": {
+            "A": "Alzheimer disease",
+            "B": "Vascular dementia akibat stroke multifokal",
+            "C": "Lewy body dementia",
+            "D": "Frontotemporal dementia",
+            "E": "Pseudodementia (depresi)"
+        }
+    },
+    {
+        "id": 17,
+        "question": "Seorang pasien pasca operasi besar mengalami gatal, tidak nyaman pada lokasi sayatan, selain rasa panas, tetapi tanpa tanda purulen. Pada pemeriksaan ditemukan hipotensi ringan, peningkatan leukosit, dan kelainan fungsi ginjal akut. Diagnosis apa yang perlu dipertimbangkan lebih dulu mengingat kondisi pasca operasi yang kompleks tersebut?",
+        "options": {
+            "A": "Infeksi luka superficial sederhana",
+            "B": "Sepsis sistemik (sumber tidak jelas)",
+            "C": "Reaksi alergi lokal terhadap plester",
+            "D": "Emboli paru subsegmental",
+            "E": "Hematoma operasi yang terinfeksi"
+        }
+    },
+    {
+        "id": 18,
+        "question": "Seorang bayi baru lahir prematur (34 minggu) mengalami kesulitan bernapas segera setelah lahir; auskultasi menunjukkan suara napas halus dan pemeriksaan radiologi dada memperlihatkan gambaran \u201cground glass\u201d bilateral. Terapi respirasi awal yang paling tepat adalah:",
+        "options": {
+            "A": "Pemberian oksigen hangat via nasal cannula tanpa CPAP",
+            "B": "Immediate intubation dan mechanical ventilation mandatory",
+            "C": "Continuous positive airway pressure (CPAP) dan surfaktan bila perlu",
+            "D": "Antibiotik empiris dan observasi saja",
+            "E": "Pemberian bronkodilator nebulisasi rutin"
+        }
+    },
+    {
+        "id": 19,
+        "question": "Seorang pasien dengan riwayat penyakit ginjal kronik stadium akhir menjalani hemodialisis. Ia mengeluh kram otot, pusing, dan mengalami penurunan tekanan darah saat sedang dialisis. Mekanisme yang paling sering menjelaskan gejala hypotension intradialysis adalah:",
+        "options": {
+            "A": "Reaksi alergi terhadap dialyzer",
+            "B": "Kehilangan volume darah eksternal karena perdarahan",
+            "C": "Penurunan volume intravaskular akibat ultrafiltrasi berlebih",
+            "D": "Overload cairan akut pasca-dialisis",
+            "E": "Hipernatremia akut selama dialisis"
+        }
+    },
+    {
+        "id": 20,
+        "question": "Seorang pasien dengan penyakit paru obstruktif kronik (PPOK) datang dengan eksaserbasi akut yang disertai peningkatan sputum purulen, dispnea, dan penurunan saturasi. Pilihan tatalaksana medis awal yang tepat pada eksaserbasi sedang adalah:",
+        "options": {
+            "A": "Observasi di rumah tanpa terapi",
+            "B": "Memberikan kortikosteroid sistemik, bronkodilator inhalasi, dan antibiotik bila dicurigai infeksi bakteri",
+            "C": "Immediate intubation dan mechanical ventilation invasif",
+            "D": "Hanya nebulizer bronkodilator dan pulang",
+            "E": "Pemberian diuretik IV"
+        }
+    },
+    {
+        "id": 21,
+        "question": "Di laboratorium neurofisiologi, ditemukan bahwa serabut saraf perifer yang terluka dapat meregenerasi mielinnya dengan bantuan sel tertentu yang membentuk selubung baru dan melepaskan faktor pertumbuhan. Sel mana yang bertanggung jawab atas regenerasi mielin di sistem saraf perifer?",
+        "options": {
+            "A": "Oligodendrosit",
+            "B": "Sel Schwann",
+            "C": "Astrosit",
+            "D": "Mikroglia",
+            "E": "Sel endotel pembuluh darah"
+        }
+    },
+    {
+        "id": 22,
+        "question": "Dalam fisiologi jantung, potensial aksi kardiomiosit ventrikel memiliki beberapa fase dengan ion yang berbeda dominan. Fase mana yang dicirikan oleh influx kalsium yang berkontribusi pada plateau potensial aksi jantung?",
+        "options": {
+            "A": "Fase 0 (depolarization) \u2014 influx Na\u207a",
+            "B": "Fase 1 (initial repolarization) \u2014 keluar K\u207a",
+            "C": "Fase 2 (plateau) \u2014 influx Ca\u00b2\u207a melalui channel L-type",
+            "D": "Fase 3 (repolarization) \u2014 keluar K\u207a dominan",
+            "E": "Fase 4 (resting) \u2014 kebocoran Na\u207a/K\u207a"
+        }
+    },
+    {
+        "id": 23,
+        "question": "Seorang peneliti farmakologi sedang menguji obat baru yang meningkatkan ekskresi natrium ginjal dengan menghambat transporter pada tubulus distal type. Obat yang bekerja dengan mekanisme serupa pada posisi kanal aldosteron target disebut:",
+        "options": {
+            "A": "Diuretik osmotik (mannitol)",
+            "B": "Thiazide diuretik",
+            "C": "Loop diuretik (furosemide)",
+            "D": "Aldosterone antagonist (spironolactone)",
+            "E": "Carbonic anhydrase inhibitor (acetazolamide)"
+        }
+    },
+    {
+        "id": 24,
+        "question": "Pada imunologi, respon primer terhadap antigen baru cenderung menghasilkan kelas antibodi tertentu sebelum switching kelas terjadi. Antibodi awal yang diproduksi dalam respon humoral primer yang baik adalah:",
+        "options": {
+            "A": "IgA",
+            "B": "IgD",
+            "C": "IgE",
+            "D": "IgM",
+            "E": "IgG"
+        }
+    },
+    {
+        "id": 25,
+        "question": "Seorang pasien dewasa muda datang dengan keluhan muntah berulang, nyeri epigastrium yang kadang menghilang, dan riwayat konsumsi NSAID jangka panjang. Pemeriksaan urea breath test positif untuk *Helicobacter pylori*. Penatalaksanaan awal eradikasi H. pylori yang paling tepat biasanya melibatkan kombinasi obat; regimen tripel klasik terdiri atas:",
+        "options": {
+            "A": "PPI + amoxicillin + clarithromycin",
+            "B": "PPI + metronidazole + ciprofloxacin",
+            "C": "PPI + amoxicillin + doxycycline",
+            "D": "H2 blocker + tetracycline + bismuth",
+            "E": "Antasida saja dan observasi"
         }
     }
 ]

@@ -10,11 +10,14 @@
 
 // ANSWER KEYS (Server-side only - NOT exposed to client)
 const ANSWER_KEYS = {
-  "1": "C", "2": "B", "3": "D", "4": "C", "5": "C",
-  "6": "C", "7": "B", "8": "C", "9": "B", "10": "B"
+  "1": "C", "2": "B", "3": "C", "4": "C", "5": "B",
+  "6": "C", "7": "C", "8": "B", "9": "B", "10": "D",
+  "11": "C", "12": "D", "13": "C", "14": "A", "15": "B",
+  "16": "A", "17": "B", "18": "C", "19": "C", "20": "B",
+  "21": "B", "22": "C", "23": "B", "24": "D", "25": "A"
 };
 
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 25;
 const SESSION_EXPIRY_SECONDS = 3600 * 6; // 6 hours
 
 
@@ -191,8 +194,8 @@ function calculateScore(answers) {
     }
   }
   
-  // Same scoring logic as before (10 points per correct answer)
-  var finalScore = correctCount * 10;
+  // Scoring logic (4 points per correct answer for 25 questions to get max 100)
+  var finalScore = correctCount * 4;
   return finalScore;
 }
 
