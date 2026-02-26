@@ -81,7 +81,8 @@
             </div>
 
             <div class="sidebar-info">
-                <div>Terjawab: <span id="answeredCount" class="font-bold">0</span>/10</div>
+                <div>Terjawab: <span id="answeredCount" class="font-bold">0</span>/<span
+                        id="totalCountDisplay">25</span></div>
             </div>
 
             <div class="question-nav" id="questionNav">
@@ -186,12 +187,19 @@
                     const countText = answeredCountEl.textContent.trim();
                     const current = parseInt(countText);
 
-                    // Detect total questions from UI (e.g., "0/30")
-                    const parentText = answeredCountEl.parentElement.textContent;
-                    const totalMatch = parentText.match(/\/(\d+)/);
-                    const total = totalMatch ? parseInt(totalMatch[1]) : 10;
+                    // Ambil total pertanyaan dari state (quiz.js) jika tersedia
+                    let total = 25;
+                    if (window.quizState && window.quizState.questions && window.quizState.questions.length > 0) {
+                        total = window.quizState.questions.length;
+                        const displayEl = document.getElementById('totalCountDisplay');
+                        if (displayEl) displayEl.textContent = total;
+                    } else {
+                        const parentText = answeredCountEl.parentElement.textContent;
+                        const totalMatch = parentText.match(/\/(\d+)/);
+                        if (totalMatch) total = parseInt(totalMatch[1]);
+                    }
 
-                    if (current >= total && !hasShownAuto) {
+                    if (current >= total && total > 0 && !hasShownAuto) {
                         hasShownAuto = true;
                         showConfirm();
                     } else if (current < total) {
