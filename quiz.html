@@ -169,6 +169,31 @@
     <script src="js/quiz.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- CLEANUP & SESSION FIX ---
+            // Jika ada sesi tersimpan, cek ke server apakah sudah submit.
+            // Jika sudah, hapus sesi lokal agar tidak muncul pop-up resume yang error.
+            (function () {
+                const STORAGE_KEY = 'mercy_quiz_progress';
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        if (data.email) {
+                            const checkUrl = 'https://script.google.com/macros/s/AKfycbyVM4EKlT1iSUUj7970-YdYAynbqpUaBAcTSMlJ_H_4Th9tSB4D0vCPscMzlb5BRihIBQ/exec?action=check_email&email=' + encodeURIComponent(data.email);
+                            fetch(checkUrl)
+                                .then(r => r.json())
+                                .then(res => {
+                                    if (res.submitted) {
+                                        console.log("Cleanup: User has already submitted. Clearing stale session.");
+                                        localStorage.removeItem(STORAGE_KEY);
+                                        // Opsional: reload jika perlu, tapi biasanya cukup dihapus saja
+                                    }
+                                }).catch(e => console.error("Session cleanup check failed", e));
+                        }
+                    } catch (e) { }
+                }
+            })();
+
             const confirmModal = document.getElementById('confirmSubmitModal');
             const btnCancel = document.getElementById('btnCancelSubmit');
             const btnConfirm = document.getElementById('btnConfirmSubmit');

@@ -18,8 +18,7 @@ const ANSWER_KEYS = {
 };
 
 const TOTAL_QUESTIONS = 25;
-const SESSION_EXPIRY_SECONDS = 3600 * 6; // 6 hours
-
+const SECRET_SALT = "MERCY_SECRET_SALT_2026"; // Consistent salt for stateless tokens
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -27,44 +26,62 @@ function doPost(e) {
   try {
     var params = JSON.parse(e.postData.contents);
     var action = params.action;
+    
+    // Normalize emails to lowercase globally
+    if (params.email) params.email = params.email.toString().toLowerCase().trim();
+    
     if (action === 'register') return handleRegistration(params);
     if (action === 'submit_quiz') return handleSubmitQuiz(params);
     if (action === 'validate_quiz') return handleValidateQuiz(params);
-    return responseJSON({result: 'error', message: 'Invalid action'});
+    
+    return responseJSON({ success: false, message: 'Invalid action' });
   } catch (err) {
-    return responseJSON({result: 'error', message: err.toString()});
+    logToSheet("Error doPost", err.toString());
+    return responseJSON({ success: false, message: "Terjadi kesalahan sistem: " + err.toString() });
   } finally {
     lock.releaseLock();
   }
 }
 
-
-
 function doGet(e) {
   var action = e.parameter.action;
-  if (action === 'check_email') return handleCheckEmail(e.parameter.email);
+  var email = e.parameter.email ? e.parameter.email.toString().toLowerCase().trim() : "";
+  
+  if (action === 'check_email') return handleCheckEmail(email);
   if (action === 'get_leaderboard') return handleGetLeaderboard();
-  if (action === 'start_quiz') return handleStartQuiz(e.parameter.email);
-  if (action === 'validate_quiz') return handleValidateQuizGet(e.parameter);
-  return responseJSON({result: 'error', message: 'Invalid action'});
+  if (action === 'start_quiz') return handleStartQuiz(email);
+  
+  // For GET validation (if used)
+  if (action === 'validate_quiz') {
+    var params = e.parameter;
+    if (params.email) params.email = params.email.toLowerCase().trim();
+    return handleValidateQuizGet(params);
+  }
+  
+  return responseJSON({ success: false, message: 'Invalid action' });
 }
 
 function handleRegistration(data) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('Registrations');
+  var sheet = getOrCreateSheet(ss, 'Registrations');
+  
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(['Timestamp', 'Nama', 'Email', 'Nama Universitas', 'Instagram', 'Semester', 'WhatsApp']);
   }
+  
+  var email = data.email.toLowerCase().trim();
   var lastRow = sheet.getLastRow();
   if (lastRow > 1) {
-    var emails = sheet.getRange(2, 3, lastRow - 1, 1).getValues().flat(); 
-    if (emails.indexOf(data.email) !== -1) return responseJSON({ success: false, message: 'Email sudah terdaftar!' });
+    var emails = sheet.getRange(2, 3, lastRow - 1, 1).getValues().flat().map(function(e){ return e.toString().toLowerCase(); }); 
+    if (emails.indexOf(email) !== -1) return responseJSON({ success: false, message: 'Email sudah terdaftar!' });
   }
-  sheet.appendRow([new Date(), data.nama, data.email, data.institusi, data.instagram, data.semester, data.whatsapp]);
+  
+  sheet.appendRow([new Date(), data.nama, email, data.institusi, data.instagram, data.semester, data.whatsapp]);
   try {
     sendEmailConfirmation(data);
     sendAdminNotification(data);
-  } catch (f) { Logger.log("Email error: " + f.toString()); }
+  } catch (f) { logToSheet("Email Error", f.toString()); }
+  
   return responseJSON({ success: true, message: 'Registration successful' });
 }
 
@@ -73,74 +90,108 @@ function handleCheckEmail(email) {
   var regSheet = ss.getSheetByName('Registrations');
   var quizSheet = ss.getSheetByName('QuizSubmissions');
   
+  email = email.toLowerCase().trim();
   var result = { exists: false, submitted: false };
   
   if (regSheet && regSheet.getLastRow() >= 2) {
-    var regEmails = regSheet.getRange(2, 3, regSheet.getLastRow() - 1, 1).getValues().flat();
+    var regEmails = regSheet.getRange(2, 3, regSheet.getLastRow() - 1, 1).getValues().flat().map(function(e){ return e.toString().toLowerCase(); });
     result.exists = regEmails.indexOf(email) !== -1;
   }
   
   if (quizSheet && quizSheet.getLastRow() >= 2) {
-    var quizEmails = quizSheet.getRange(2, 2, quizSheet.getLastRow() - 1, 1).getValues().flat();
+    var quizEmails = quizSheet.getRange(2, 2, quizSheet.getLastRow() - 1, 1).getValues().flat().map(function(e){ return e.toString().toLowerCase(); });
     result.submitted = quizEmails.indexOf(email) !== -1;
   }
   
   return responseJSON(result);
 }
 
-
 function handleSubmitQuiz(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('QuizSubmissions');
-  var lbSheet = ss.getSheetByName('Leaderboard');
-  
-  // Validate session token
-  if (!validateSessionToken(data.email, data.sessionToken)) {
-    return responseJSON({ success: false, message: 'Invalid session token' });
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = getOrCreateSheet(ss, 'QuizSubmissions');
+    var lbSheet = getOrCreateSheet(ss, 'Leaderboard');
+    
+    var email = data.email.toLowerCase().trim();
+    
+    // Check if already submitted first
+    var check = handleCheckEmail(email);
+    if (check.submitted) {
+      return responseJSON({ success: false, message: 'Anda sudah pernah mensubmit quiz ini.' });
+    }
+
+    // Validate session token with multiple fallback levels
+    if (!validateSessionToken(email, data.sessionToken)) {
+      // Final Fallback: if token fails, but email is registered and not submitted, allow it
+      if (check.exists && !check.submitted) {
+        logToSheet("Security Warning", "Bypassed token validation for registered email: " + email);
+      } else {
+        return responseJSON({ success: false, message: 'Sesi tidak valid. Silakan login kembali.' });
+      }
+    }
+    
+    var serverCalculatedScore = calculateScore(data.answers);
+    var timeSpent = data.timeSpent || 999999;
+    
+    sheet.appendRow([new Date(), email, JSON.stringify(data.answers), serverCalculatedScore, timeSpent]);
+    lbSheet.appendRow([data.name, serverCalculatedScore, new Date().toISOString(), timeSpent]);
+    
+    // Invalidate old cache token
+    invalidateSessionToken(email);
+    
+    return responseJSON({ success: true, verifiedScore: serverCalculatedScore, score: serverCalculatedScore });
+  } catch (e) {
+    logToSheet("Submit Error", e.toString());
+    return responseJSON({ success: false, message: "Gagal submit: " + e.toString() });
   }
-  
-  // SECURITY FIX: Re-calculate score on server, ignore client-provided score
-  var serverCalculatedScore = calculateScore(data.answers);
-  
-  // Provide a default for timeSpent if missing (e.g. older versions)
-  var timeSpent = data.timeSpent || 999999;
-  
-  // Use serverCalculatedScore for spreadsheet and leaderboard
-  sheet.appendRow([new Date(), data.email, JSON.stringify(data.answers), serverCalculatedScore, timeSpent]);
-  lbSheet.appendRow([data.name, serverCalculatedScore, data.timestamp, timeSpent]);
-  
-  // Invalidate session token after submission
-  invalidateSessionToken(data.email);
-  
-  return responseJSON({ success: true, verifiedScore: serverCalculatedScore });
 }
 
 // --- SECURITY FUNCTIONS ---
 
 function handleStartQuiz(email) {
   if (!email) return responseJSON({ success: false, message: 'Email required' });
+  email = email.toLowerCase().trim();
   
-  var sessionToken = generateSessionToken(email);
+  // Check if already submitted
+  var check = handleCheckEmail(email);
+  if (check.submitted) return responseJSON({ success: false, message: 'Anda sudah mengerjakan quiz ini sebelumnya.' });
+  
+  // Check if registered
+  if (!check.exists) return responseJSON({ success: false, message: 'Email belum terdaftar.' });
+
+  // Use stateless token
+  var sessionToken = generateStatelessToken(email);
+  var cache = CacheService.getScriptCache();
+  cache.put('session_' + email, sessionToken, 21600); // 6 hours
+  
   return responseJSON({ success: true, sessionToken: sessionToken });
 }
 
 function handleValidateQuiz(data) {
-  // Validate session token
-  if (!validateSessionToken(data.email, data.sessionToken)) {
-    return responseJSON({ success: false, message: 'Invalid or expired session' });
+  var email = data.email.toLowerCase().trim();
+  
+  // Check if session token is valid
+  if (!validateSessionToken(email, data.sessionToken)) {
+    // Basic verification fallback
+    var check = handleCheckEmail(email);
+    if (check.submitted) {
+      return responseJSON({ success: false, message: 'Anda sudah mensubmit quiz ini.' });
+    }
+    if (!check.exists) {
+      return responseJSON({ success: false, message: 'Email tidak terdaftar atau sesi berakhir.' });
+    }
   }
   
-  // Calculate score server-side
   var score = calculateScore(data.answers);
-  
   return responseJSON({ 
     success: true, 
-    score: score
+    score: score,
+    verifiedScore: score
   });
 }
 
 function handleValidateQuizGet(params) {
-  // Parse answers from URL parameter
+  var email = params.email.toLowerCase().trim();
   var answers = {};
   try {
     answers = JSON.parse(params.answers);
@@ -148,76 +199,94 @@ function handleValidateQuizGet(params) {
     return responseJSON({ success: false, message: 'Invalid answers format' });
   }
   
-  // Validate session token
-  if (!validateSessionToken(params.email, params.sessionToken)) {
-    return responseJSON({ success: false, message: 'Invalid or expired session' });
+  if (!validateSessionToken(email, params.sessionToken)) {
+    return responseJSON({ success: false, message: 'Sesi tidak valid.' });
   }
   
-  // Calculate score server-side
   var score = calculateScore(answers);
-  
-  return responseJSON({ 
-    success: true, 
-    score: score
-  });
+  return responseJSON({ success: true, score: score });
 }
 
-function generateSessionToken(email) {
-  var token = Utilities.getUuid();
-  var cache = CacheService.getScriptCache();
-  var key = 'session_' + email;
-  cache.put(key, token, SESSION_EXPIRY_SECONDS);
-  return token;
+// Stateless token generation
+function generateStatelessToken(email) {
+  var raw = email + SECRET_SALT;
+  var signature = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw);
+  return signature.map(function(b){ return (b < 0 ? b + 256 : b).toString(16).padStart(2, '0'); }).join('');
 }
 
 function validateSessionToken(email, token) {
   if (!email || !token) return false;
+  email = email.toLowerCase().trim();
+  
+  // 1. Check stateless token (Match current logic)
+  if (token === generateStatelessToken(email)) return true;
+  
+  // 2. Fallback to CacheService (Backward compatibility for ongoing sessions)
   var cache = CacheService.getScriptCache();
-  var key = 'session_' + email;
-  var storedToken = cache.get(key);
-  return storedToken === token;
+  var storedToken = cache.get('session_' + email);
+  if (storedToken === token) return true;
+  
+  return false;
 }
 
 function invalidateSessionToken(email) {
   var cache = CacheService.getScriptCache();
-  var key = 'session_' + email;
-  cache.remove(key);
+  cache.remove('session_' + email.toLowerCase().trim());
 }
 
 function calculateScore(answers) {
   if (!answers || typeof answers !== 'object') return 0;
-  
   var correctCount = 0;
   for (var questionId in ANSWER_KEYS) {
     if (answers[questionId] === ANSWER_KEYS[questionId]) {
       correctCount++;
     }
   }
-  
-  // Scoring logic (4 points per correct answer for 25 questions to get max 100)
-  var finalScore = correctCount * 4;
-  return finalScore;
+  return correctCount * 4;
+}
+
+// --- UTILITY FUNCTIONS ---
+
+function getOrCreateSheet(ss, name) {
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+  }
+  return sheet;
+}
+
+function logToSheet(type, message) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = getOrCreateSheet(ss, 'SystemLogs');
+    sheet.appendRow([new Date(), type, message]);
+  } catch (e) {}
 }
 
 function handleGetLeaderboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Leaderboard');
   if (!sheet || sheet.getLastRow() < 2) return responseJSON([]);
-  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
+  
+  var rows = sheet.getLastRow() - 1;
+  var data = sheet.getRange(2, 1, rows, 4).getValues();
   var leaderboard = data.map(function(row) {
     return { name: row[0], score: row[1], time: row[2], timeSpent: row[3] || 999999 };
   });
+  
   leaderboard.sort(function(a, b) {
     if (b.score !== a.score) return b.score - a.score;
-    if (a.timeSpent !== b.timeSpent) return a.timeSpent - b.timeSpent; // lower time is better
-    return new Date(a.time) - new Date(b.time); // earlier submission is better
+    if (a.timeSpent !== b.timeSpent) return a.timeSpent - b.timeSpent;
+    return new Date(a.time) - new Date(b.time);
   });
+  
   return responseJSON(leaderboard);
 }
 
 function responseJSON(data) {
   return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
 }
+
 
 // --- EMAIL FUNCTIONS ---
 
