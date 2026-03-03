@@ -167,33 +167,143 @@
     </div>
 
     <script src="js/quiz.js"></script>
+    <!-- New logic and modals below -->
+    <div id="resumeChoiceModal" class="modal"
+        style="display: none; align-items: center; justify-content: center; z-index: 6000; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
+        <div class="modal-content"
+            style="text-align: center; max-width: 420px; padding: 2.5rem; border-radius: var(--radius-lg); border: none; box-shadow: var(--shadow-xl); background: #fff;">
+            <p
+                style="font-size: 1.1rem; font-weight: 600; margin-bottom: 2.25rem; color: #000; line-height: 1.6; font-family: var(--font-primary);">
+                Sesi ujian sebelumnya ditemukan. Ingin melanjutkan atau mulai dari awal?
+            </p>
+            <div class="btn-group" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <button id="btnResumeLanjut" class="btn"
+                    style="background: var(--color-blue-saturated); color: #fff; padding: 0.8rem; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 600; font-family: var(--font-primary); width: 100%;">Lanjutkan
+                    Sesi Sebelumnya</button>
+                <button id="btnResumeBaru" class="btn"
+                    style="background: #f1f5f9; color: #64748b; padding: 0.8rem; border-radius: var(--radius-md); border: 1px solid #e2e8f0; cursor: pointer; font-weight: 600; font-family: var(--font-primary); width: 100%;">Mulai
+                    Dari Awal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- CLEANUP & SESSION FIX ---
-            // Jika ada sesi tersimpan, cek ke server apakah sudah submit.
-            // Jika sudah, hapus sesi lokal agar tidak muncul pop-up resume yang error.
-            (function () {
-                const STORAGE_KEY = 'mercy_quiz_progress';
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    try {
-                        const data = JSON.parse(saved);
-                        if (data.email) {
-                            const checkUrl = 'https://script.google.com/macros/s/AKfycbyVM4EKlT1iSUUj7970-YdYAynbqpUaBAcTSMlJ_H_4Th9tSB4D0vCPscMzlb5BRihIBQ/exec?action=check_email&email=' + encodeURIComponent(data.email);
-                            fetch(checkUrl)
-                                .then(r => r.json())
-                                .then(res => {
-                                    if (res.submitted) {
-                                        console.log("Cleanup: User has already submitted. Clearing stale session.");
-                                        localStorage.removeItem(STORAGE_KEY);
-                                        // Opsional: reload jika perlu, tapi biasanya cukup dihapus saja
-                                    }
-                                }).catch(e => console.error("Session cleanup check failed", e));
-                        }
-                    } catch (e) { }
-                }
-            })();
+            const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVM4EKlT1iSUUj7970-YdYAynbqpUaBAcTSMlJ_H_4Th9tSB4D0vCPscMzlb5BRihIBQ/exec';
+            const STORAGE_KEY = 'mercy_quiz_progress';
 
+            const loginForm = document.getElementById('loginForm');
+            const btnLogin = document.getElementById('btnLogin');
+            const loginMessage = document.getElementById('loginMessage');
+            const resumeChoiceModal = document.getElementById('resumeChoiceModal');
+            const btnResumeLanjut = document.getElementById('btnResumeLanjut');
+            const btnResumeBaru = document.getElementById('btnResumeBaru');
+
+            // Hijack Login Form
+            if (loginForm) {
+                // Clone form to remove existing listeners from quiz.js
+                const newForm = loginForm.cloneNode(true);
+                loginForm.parentNode.replaceChild(newForm, loginForm);
+
+                // References for the new form elements
+                const currentBtn = newForm.querySelector('#btnLogin');
+                const nameInput = newForm.querySelector('#loginName');
+                const emailInput = newForm.querySelector('#loginEmail');
+
+                newForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const name = nameInput.value.trim();
+                    const email = emailInput.value.trim().toLowerCase();
+
+                    if (!name || !email) return;
+
+                    // Disable UI
+                    const originalBtnText = currentBtn.innerHTML;
+                    currentBtn.disabled = true;
+                    currentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memvalidasi...';
+                    loginMessage.innerHTML = '';
+
+                    try {
+                        // 1. Check Registration & Submission Status
+                        const response = await fetch(`${APPS_SCRIPT_URL}?action=check_email&email=${encodeURIComponent(email)}`);
+                        const result = await response.json();
+
+                        if (!result.exists) {
+                            alert("Email belum terdaftar di sistem mercy, silakan daftar terlebih dahulu.");
+                            currentBtn.disabled = false;
+                            currentBtn.innerHTML = originalBtnText;
+                            return;
+                        }
+
+                        if (result.submitted) {
+                            alert("Peserta hanya bisa mengerjakan ujian sekali untuk satu email.");
+                            currentBtn.disabled = false;
+                            currentBtn.innerHTML = originalBtnText;
+                            return;
+                        }
+
+                        // 2. Check for Local Progress
+                        const savedProgress = localStorage.getItem(STORAGE_KEY);
+                        if (savedProgress) {
+                            try {
+                                const parsed = JSON.parse(savedProgress);
+                                // Hanya tawarkan resume jika emailnya sama
+                                if (parsed.email === email) {
+                                    resumeChoiceModal.style.display = 'flex';
+
+                                    // Handle Resume Choice
+                                    const handleResume = (choice) => {
+                                        resumeChoiceModal.style.display = 'none';
+                                        if (choice === 'resume') {
+                                            if (typeof loadSavedProgress === 'function') {
+                                                loadSavedProgress();
+                                                if (typeof startQuiz === 'function') startQuiz(email, name);
+                                            }
+                                        } else {
+                                            if (typeof clearQuizProgress === 'function') clearQuizProgress();
+                                            if (typeof startQuiz === 'function') startQuiz(email, name);
+                                        }
+                                        triggerFullscreen();
+                                    };
+
+                                    btnResumeLanjut.onclick = () => handleResume('resume');
+                                    btnResumeBaru.onclick = () => handleResume('new');
+                                    return;
+                                } else {
+                                    if (typeof clearQuizProgress === 'function') clearQuizProgress();
+                                }
+                            } catch (err) {
+                                if (typeof clearQuizProgress === 'function') clearQuizProgress();
+                            }
+                        }
+
+                        if (typeof startQuiz === 'function') {
+                            startQuiz(email, name);
+                            triggerFullscreen();
+                        }
+
+                    } catch (error) {
+                        console.error("Login verification failed:", error);
+                        alert("Gagal memvalidasi sesi. Periksa koneksi internet Anda.");
+                        currentBtn.disabled = false;
+                        currentBtn.innerHTML = originalBtnText;
+                    }
+                });
+            }
+
+            function triggerFullscreen() {
+                let elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(err => console.log(err));
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            }
+
+            // --- NAVIGATION & SUBMIT MODAL LOGIC ---
             const confirmModal = document.getElementById('confirmSubmitModal');
             const btnCancel = document.getElementById('btnCancelSubmit');
             const btnConfirm = document.getElementById('btnConfirmSubmit');
@@ -211,19 +321,13 @@
                 const observer = new MutationObserver(() => {
                     const countText = answeredCountEl.textContent.trim();
                     const current = parseInt(countText);
-
-                    // Ambil total pertanyaan dari state (quiz.js) jika tersedia
                     let total = 25;
-                    if (window.quizState && window.quizState.questions && window.quizState.questions.length > 0) {
+
+                    if (window.quizState && window.quizState.questions) {
                         total = window.quizState.questions.length;
                         const displayEl = document.getElementById('totalCountDisplay');
                         if (displayEl) displayEl.textContent = total;
-                    } else {
-                        const parentText = answeredCountEl.parentElement.textContent;
-                        const totalMatch = parentText.match(/\/(\d+)/);
-                        if (totalMatch) total = parseInt(totalMatch[1]);
                     }
-
                     if (current >= total && total > 0 && !hasShownAuto) {
                         hasShownAuto = true;
                         showConfirm();
@@ -236,11 +340,11 @@
 
             // Override Finish Button
             if (btnFinish) {
-                setTimeout(() => {
-                    const newBtn = btnFinish.cloneNode(true);
-                    btnFinish.parentNode.replaceChild(newBtn, btnFinish);
-                    newBtn.addEventListener('click', showConfirm);
-                }, 1000);
+                // Remove original listener by cloning if necessary, or just add our own if quiz.js used a property
+                // But clone is safer for anonymous listeners
+                const newBtnFinish = btnFinish.cloneNode(true);
+                btnFinish.parentNode.replaceChild(newBtnFinish, btnFinish);
+                newBtnFinish.addEventListener('click', showConfirm);
             }
 
             btnCancel.addEventListener('click', () => {
@@ -249,18 +353,15 @@
 
             btnConfirm.addEventListener('click', () => {
                 confirmModal.style.display = 'none';
-                // Bypass browser confirm popup
                 const originalConfirm = window.confirm;
-                window.confirm = () => true;
+                window.confirm = () => true; // Bypass browser alert
                 if (typeof finishQuiz === 'function') {
                     finishQuiz();
                 }
-                setTimeout(() => {
-                    window.confirm = originalConfirm;
-                }, 1000);
+                setTimeout(() => { window.confirm = originalConfirm; }, 1000);
             });
 
-            // 1. Auto-save progress ketika keluar atau ganti tab
+            // Save progress on exit
             window.addEventListener('beforeunload', () => {
                 if (typeof saveQuizProgress === 'function') saveQuizProgress();
             });
@@ -270,24 +371,8 @@
                 }
             });
 
-            // 2. Auto Fullscreen saat menekan mulai kompetisi
-            const btnLogin = document.getElementById('btnLogin');
-            if (btnLogin) {
-                btnLogin.addEventListener('click', () => {
-                    let elem = document.documentElement;
-                    if (elem.requestFullscreen) {
-                        elem.requestFullscreen().catch(err => console.log(err));
-                    } else if (elem.webkitRequestFullscreen) {
-                        elem.webkitRequestFullscreen();
-                    } else if (elem.msRequestFullscreen) {
-                        elem.msRequestFullscreen();
-                    }
-                });
-            }
-
-            // 3. Prevent klik kanan & berikan warning jika keluar fullscreen
+            // Security: Prevent context menu & warn on fullscreen change
             document.addEventListener('contextmenu', event => event.preventDefault());
-
             document.addEventListener('fullscreenchange', () => {
                 const quizInterface = document.getElementById('quizInterface');
                 if (!document.fullscreenElement && quizInterface && !quizInterface.classList.contains('hidden')) {
