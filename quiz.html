@@ -258,11 +258,11 @@
                                         if (choice === 'resume') {
                                             if (typeof loadSavedProgress === 'function') {
                                                 loadSavedProgress();
-                                                if (typeof startQuiz === 'function') startQuiz(email, name);
+                                                if (typeof startQuiz === 'function') startQuiz(email, name, true); // Pass true to resume
                                             }
                                         } else {
                                             if (typeof clearQuizProgress === 'function') clearQuizProgress();
-                                            if (typeof startQuiz === 'function') startQuiz(email, name);
+                                            if (typeof startQuiz === 'function') startQuiz(email, name, false); // Pass false for new
                                         }
                                         triggerFullscreen();
                                     };
@@ -279,7 +279,7 @@
                         }
 
                         if (typeof startQuiz === 'function') {
-                            startQuiz(email, name);
+                            startQuiz(email, name, false); // New session
                             triggerFullscreen();
                         }
 

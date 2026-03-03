@@ -1,102 +1,160 @@
 /**
- * main.js - Global UI Interactions
- * Unobfuscated version
+ * MERCY 2026 - Main JavaScript
+ * Handles interactions for the master page (index.html)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Navbar Sticky & Scroll Spy
-    const navbar = document.querySelector('.navbar');
-    const navLinks = document.querySelectorAll('.nav-link');
+    initNavbar();
+    initSmoothScroll();
+    initAccordion();
+    initWaPopup();
+    renderPlaceholders();
+});
 
-    const handleScroll = () => {
-        // Sticky Navbar
+// --- Navigation Toggle ---
+function initNavbar() {
+    const toggle = document.getElementById('navbarToggle');
+    const menu = document.getElementById('navbarMenu');
+
+    if (toggle && menu) {
+        toggle.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            const icon = toggle.querySelector('i');
+            if (menu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
+
+    // Change navbar background on scroll
+    window.addEventListener('scroll', () => {
+        const navbar = document.querySelector('.navbar');
         if (window.scrollY > 50) {
-            navbar.classList.add('sticky');
+            navbar.style.boxShadow = 'var(--shadow-md)';
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
         } else {
-            navbar.classList.remove('sticky');
+            navbar.style.boxShadow = 'var(--shadow-sm)';
+            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
         }
+    });
+}
 
-        // Scroll Spy (Active Link)
-        let current = '';
-        const sections = document.querySelectorAll('section[id]');
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (window.scrollY >= (sectionTop - 150)) {
-                current = '#' + section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === current) {
-                link.classList.add('active');
-            }
-        });
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial call
-
-    // 2. Smooth Scrolling for Anchors
+// --- Smooth Scrolling ---
+function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            e.preventDefault();
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
 
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
-                e.preventDefault();
-                targetElement.scrollIntoView({
-                    behavior: 'smooth'
+                // Close mobile menu if open
+                document.getElementById('navbarMenu').classList.remove('active');
+
+                const headerOffset = 80;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
                 });
             }
         });
     });
+}
 
-    // 3. Accordion Logic
-    const accordionToggles = document.querySelectorAll('[data-accordion-target]');
-    accordionToggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
-            const targetId = toggle.getAttribute('data-accordion-target');
-            const target = document.querySelector(targetId);
-            const icon = toggle.querySelector('svg');
+// --- FAQ Accordion ---
+function initAccordion() {
+    const accItem = document.getElementsByClassName('accordion-item');
+    const accHeader = document.getElementsByClassName('accordion-header');
 
-            if (target) {
-                const isExpanded = !target.classList.contains('hidden');
+    for (let i = 0; i < accHeader.length; i++) {
+        accHeader[i].addEventListener('click', function () {
+            // Toggle current item
+            this.parentNode.classList.toggle('active');
 
-                // Close other accordions could be added here if desired.
+            // Close other items (optional, accordion style)
+            // for (let j = 0; j < accHeader.length; j++) {
+            //     if (j !== i) {
+            //         accHeader[j].parentNode.classList.remove('active');
+            //     }
+            // }
+        });
+    }
+}
 
-                // Toggle current
-                if (isExpanded) {
-                    target.classList.add('hidden');
-                    if (icon) icon.classList.remove('-rotate-180');
-                } else {
-                    target.classList.remove('hidden');
-                    if (icon) icon.classList.add('-rotate-180');
-                }
+// --- WhatsApp Popup ---
+function initWaPopup() {
+    const modal = document.getElementById('waModal');
+    const openBtn = document.getElementById('openWaPopup');
+    const closeBtn = document.getElementById('closeWaModal');
+    const form = document.getElementById('waForm');
+
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    }
+
+    // Close on click outside
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
             }
         });
-    });
-
-    // 4. WhatsApp Popup logic
-    const waPopup = document.getElementById('whatsapp-popup');
-    const waClose = document.getElementById('wa-close');
-
-    if (waPopup) {
-        // Show after 3 seconds if not already closed in this session
-        if (sessionStorage.getItem('wa-popup-dismissed') !== 'true') {
-            setTimeout(() => {
-                waPopup.style.display = 'block';
-            }, 3000);
-        }
-
-        if (waClose) {
-            waClose.addEventListener('click', (e) => {
-                e.preventDefault();
-                waPopup.style.display = 'none';
-                sessionStorage.setItem('wa-popup-dismissed', 'true');
-            });
-        }
     }
-});
+
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('waName').value;
+            const message = document.getElementById('waMessage').value;
+            const phoneNumber = '6287788836000';
+
+            const text = `Hai Medi, nama aku ${name}, Aku mau tanya seputar Mercy dong... ${message}`;
+            const encodedText = encodeURIComponent(text);
+            const url = `https://wa.me/${phoneNumber}?text=${encodedText}`;
+
+            window.open(url, '_blank');
+            modal.classList.remove('active');
+        });
+    }
+}
+
+// --- Render Exclusive Discount Placeholders ---
+function renderPlaceholders() {
+    const productList = document.getElementById('productList');
+    if (!productList) return;
+
+    let productsHtml = '';
+
+    for (let i = 1; i <= 10; i++) {
+        const price = (Math.random() * 500 + 100).toFixed(0) + '.000';
+        const oldPrice = (parseInt(price) + 50) + '.000';
+
+        productsHtml += `
+            <div class="card">
+                <img src="https://placehold.co/400x400/1E3A8A/FFFFFF?text=Product+${i}" alt="Product ${i}" class="card-image">
+                <h3 class="card-title">Medtools Bundle ${i}</h3>
+                <p class="card-text">Paket lengkap alat medis berkualitas untuk mahasiswa kedokteran.</p>
+                <div class="card-price">Rp ${price} <span class="card-price-old">Rp ${oldPrice}</span></div>
+                <button class="btn btn-primary btn-sm mt-2" style="width: 100%;">Beli Sekarang</button>
+            </div>
+        `;
+    }
+
+    productList.innerHTML = productsHtml;
+}
