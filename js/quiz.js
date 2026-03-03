@@ -453,7 +453,7 @@ async function finishQuiz(auto = false) {
     clearQuizProgress();
 
     // Show score popup with confetti
-    showScorePopup(finalScore);
+    showScorePopup(finalScore, timeSpentSeconds);
 
     // Redirect to leaderboard after popup
     setTimeout(() => {
@@ -474,11 +474,24 @@ async function finishQuiz(auto = false) {
     }, 4000);
 }
 
-function showScorePopup(score) {
+function showScorePopup(score, timeSpentSeconds) {
     const modal = document.getElementById('scoreModal');
     const scoreVal = document.getElementById('finalScoreValue');
+    const timeEl = document.getElementById('timeSpentDisplay');
     if (!modal || !scoreVal) return;
 
+    // Format timeSpent into human-readable string
+    if (timeEl && timeSpentSeconds > 0) {
+        const totalSec = Math.round(timeSpentSeconds);
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        let parts = [];
+        if (h > 0) parts.push(`${h} jam`);
+        if (m > 0) parts.push(`${m} menit`);
+        if (s > 0 || parts.length === 0) parts.push(`${s} detik`);
+        timeEl.textContent = `⏱️ Waktu dihabiskan: ${parts.join(', ')}`;
+    }
     const card = modal.querySelector('.card');
     scoreVal.textContent = score;
     modal.style.display = 'flex';
