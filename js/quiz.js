@@ -47,6 +47,12 @@ function initQuizControls() {
 // --- CORE FUNCTIONS ---
 
 async function startQuiz(email, name) {
+    // Ensure we start with a clean slate if not resuming
+    if (!window.quizState.endTime) {
+        window.quizState.answers = {};
+        window.quizState.currentQuestionIndex = 0;
+    }
+
     window.quizState.email = email;
     window.quizState.name = name;
 
@@ -55,25 +61,29 @@ async function startQuiz(email, name) {
         const response = await fetch('data/questions.json');
         window.quizState.questions = await response.json();
 
-        // 2. Setup Session on Backend
+        // 2. Setup/Refresh Session on Backend
         const sessionResponse = await fetch(`${APPS_SCRIPT_URL}?action=start_quiz&email=${encodeURIComponent(email)}`);
         const sessionResult = await sessionResponse.json();
 
         if (sessionResult.success) {
             window.quizState.sessionToken = sessionResult.sessionToken;
         } else {
-            console.error("Session token error:", sessionResult.message);
-            // We proceed anyway as backend has fallbacks, but token is preferred
+            // This catches cases where they bypassed the frontend check (e.g. they already submitted)
+            console.error("Session error:", sessionResult.message);
+            alert(sessionResult.message || "Gagal memulai sesi.");
+            window.location.reload();
+            return;
         }
 
         // 3. UI Transition
         document.getElementById('quizLogin').style.display = 'none';
         document.getElementById('quizInterface').classList.remove('hidden');
 
-        // 4. Timer setup
+        // 4. Timer setup - Set 45 Min timer if fresh
         if (!window.quizState.endTime) {
             window.quizState.endTime = Date.now() + (QUIZ_DURATION_MINUTES * 60 * 1000);
         }
+
         startTimer();
 
         // 5. Render first question & Navigation
@@ -86,7 +96,7 @@ async function startQuiz(email, name) {
 
     } catch (error) {
         console.error("Failed to start quiz:", error);
-        alert("Gagal memuat soal. Silakan refresh halaman.");
+        alert("Gagal memuat soal atau sesi. Silakan periksa koneksi internet.");
     }
 }
 
@@ -269,6 +279,7 @@ async function finishQuiz() {
             timestamp: new Date().toISOString()
         };
 
+        // Standard submission - no-cors is used for GAS POST
         await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -280,6 +291,7 @@ async function finishQuiz() {
         clearQuizProgress();
         showScorePopup(score);
 
+        // Redirect to leaderboard after a delay
         setTimeout(() => {
             window.location.href = `leaderboard.html?email=${encodeURIComponent(window.quizState.email)}&name=${encodeURIComponent(window.quizState.name)}&score=${score}`;
         }, 3000);
