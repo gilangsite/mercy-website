@@ -54,7 +54,8 @@ function initSmoothScroll() {
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 // Close mobile menu if open
-                document.getElementById('navbarMenu').classList.remove('active');
+                const menu = document.getElementById('navbarMenu');
+                if (menu) menu.classList.remove('active');
 
                 const headerOffset = 80;
                 const elementPosition = targetElement.getBoundingClientRect().top;
@@ -71,20 +72,12 @@ function initSmoothScroll() {
 
 // --- FAQ Accordion ---
 function initAccordion() {
-    const accItem = document.getElementsByClassName('accordion-item');
     const accHeader = document.getElementsByClassName('accordion-header');
 
     for (let i = 0; i < accHeader.length; i++) {
         accHeader[i].addEventListener('click', function () {
             // Toggle current item
             this.parentNode.classList.toggle('active');
-
-            // Close other items (optional, accordion style)
-            // for (let j = 0; j < accHeader.length; j++) {
-            //     if (j !== i) {
-            //         accHeader[j].parentNode.classList.remove('active');
-            //     }
-            // }
         });
     }
 }
@@ -96,13 +89,13 @@ function initWaPopup() {
     const closeBtn = document.getElementById('closeWaModal');
     const form = document.getElementById('waForm');
 
-    if (openBtn) {
+    if (openBtn && modal) {
         openBtn.addEventListener('click', () => {
             modal.classList.add('active');
         });
     }
 
-    if (closeBtn) {
+    if (closeBtn && modal) {
         closeBtn.addEventListener('click', () => {
             modal.classList.remove('active');
         });
@@ -117,11 +110,15 @@ function initWaPopup() {
         });
     }
 
-    if (form) {
+    if (form && modal) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('waName').value;
-            const message = document.getElementById('waMessage').value;
+            const nameEl = document.getElementById('waName');
+            const messageEl = document.getElementById('waMessage');
+            if (!nameEl || !messageEl) return;
+
+            const name = nameEl.value;
+            const message = messageEl.value;
             const phoneNumber = '6287788836000';
 
             const text = `Hai Medi, nama aku ${name}, Aku mau tanya seputar Mercy dong... ${message}`;

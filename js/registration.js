@@ -10,6 +10,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const regForm = document.getElementById('registrationForm');
 
     if (regForm) {
+        // Input Normalization: Force Lowercase Email and Numbers Only for WhatsApp
+        const regEmail = document.getElementById('regEmail');
+        const regWa = document.getElementById('regWa');
+
+        if (regEmail) {
+            regEmail.addEventListener('input', (e) => {
+                e.target.value = e.target.value.toLowerCase();
+            });
+        }
+
+        if (regWa) {
+            regWa.addEventListener('input', (e) => {
+                // Remove any non-numeric characters
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+        }
+
         regForm.addEventListener('submit', handleRegistration);
     }
 });

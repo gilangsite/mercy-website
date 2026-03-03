@@ -210,11 +210,24 @@
                 const nameInput = newForm.querySelector('#loginName');
                 const emailInput = newForm.querySelector('#loginEmail');
 
+                // Input Normalization
+                if (emailInput) {
+                    emailInput.addEventListener('input', (e) => {
+                        e.target.value = e.target.value.toLowerCase();
+                    });
+                }
+
+                if (nameInput) {
+                    nameInput.addEventListener('input', (e) => {
+                        e.target.value = e.target.value.toLowerCase();
+                    });
+                }
+
                 newForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
-                    const name = nameInput.value.trim();
-                    const email = emailInput.value.trim().toLowerCase();
+                    const name = nameInput ? nameInput.value.trim().toLowerCase() : '';
+                    const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
 
                     if (!name || !email) return;
 
