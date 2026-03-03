@@ -30,10 +30,12 @@ if (urlEmail) {
 }
 
 const urlScore = urlParams.get('score');
+const urlTimeSpent = urlParams.get('timeSpent'); // seconds user took
 
 // If user from URL (recently finished quiz), allow optimistic UI update
 if (urlName) localStorage.setItem('mercy_quiz_name', urlName);
 if (urlScore) localStorage.setItem('mercy_quiz_score', urlScore);
+if (urlTimeSpent) localStorage.setItem('mercy_quiz_timespent', urlTimeSpent);
 
 async function fetchLeaderboard() {
     const tbody = document.getElementById('leaderboardBody');
@@ -82,12 +84,14 @@ async function fetchLeaderboard() {
 
                 // Clear the optimistic flag since we found them
                 localStorage.removeItem('mercy_quiz_score');
-            } else if (localScore > 0) {
+            } else if (localScore >= 0) {
                 // User NOT found in API, insert optimistic
+                const localTimeSpent = parseFloat(localStorage.getItem('mercy_quiz_timespent') || urlTimeSpent || 999999);
                 const tempUser = {
                     name: localName,
                     email: currentUserEmail,
                     score: localScore,
+                    timeSpent: localTimeSpent,
                     time: "Just now"
                 };
                 allData.push(tempUser);
@@ -124,11 +128,15 @@ async function fetchLeaderboard() {
 
         allData = Array.from(uniqueDataMap.values());
 
-        // Final Re-sort: Higher Score first
+        // Final Re-sort: Higher Score first, then shorter timeSpent (tiebreaker)
         allData.sort((a, b) => {
             const scoreA = parseFloat(a.score || a.Score || 0);
             const scoreB = parseFloat(b.score || b.Score || 0);
-            return scoreB - scoreA;
+            if (scoreB !== scoreA) return scoreB - scoreA;  // Higher score wins
+            // Tie-break: shorter time is better (lower timeSpent = better rank)
+            const timeA = parseFloat(a.timeSpent || a.TimeSpent || 999999);
+            const timeB = parseFloat(b.timeSpent || b.TimeSpent || 999999);
+            return timeA - timeB; // Faster wins
         });
 
         tbody.innerHTML = '';
@@ -159,11 +167,15 @@ async function fetchLeaderboard() {
 
             // Render Row
             const rankBadge = getRankBadge(rank);
+            const uScore = parseFloat(user.score || user.Score || 0);
+            const uTimeSpent = parseFloat(user.timeSpent || user.TimeSpent || 0);
+            const timeDisplay = uTimeSpent > 0 ? formatTime(uTimeSpent) : '-';
             const row = `
             <tr class="${isMe ? 'highlight-row' : ''}" style="${isMe ? 'background-color: #eff6ff;' : ''}">
                 <td>${rankBadge}</td>
                 <td><div style="font-weight: 500;">${uName} ${isMe ? '(Anda)' : ''}</div></td>
-                <td><span class="badge" style="background:#dbeafe; color:#1e40af; padding:4px 8px; border-radius:4px; font-size:0.8rem;">Selesai</span></td>
+                <td><span class="badge" style="background:#dbeafe; color:#1e40af; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:600;">${uScore}</span></td>
+                <td style="font-size:0.8rem; color: #64748b;">${timeDisplay}</td>
             </tr>
         `;
             tbody.innerHTML += row;
@@ -203,13 +215,14 @@ async function fetchLeaderboard() {
                     const r = i + 1;
                     const uEmail = (u.email || u.Email || u['Email Address'] || '').toLowerCase().trim();
                     const uName = u.name || u.Name || 'Peserta';
+                    const uScore = parseFloat(u.score || u.Score || 0);
                     const isMe = currentUserEmail && uEmail === currentUserEmail.toLowerCase().trim();
 
                     posterTbody.innerHTML += `
                         <tr style="${isMe ? 'color:#1e40af; font-weight:bold;' : 'color:#333;'}">
                             <td style="padding: 12px; border-bottom: 2px solid #eee; width: 80px;">#${r}</td>
                             <td style="padding: 12px; border-bottom: 2px solid #eee;">${uName}</td>
-                            <td style="padding: 12px; border-bottom: 2px solid #eee; text-align:right;">Selesai</td>
+                            <td style="padding: 12px; border-bottom: 2px solid #eee; text-align:right; font-weight:600;">${uScore}</td>
                         </tr>
                     `;
                 });
@@ -255,6 +268,22 @@ function getRankBadge(rank) {
     if (rank === 2) rankBadge = `<span class="rank-badge rank-2">${rank}</span>`;
     if (rank === 3) rankBadge = `<span class="rank-badge rank-3">${rank}</span>`;
     return rankBadge;
+}
+
+/**
+ * Converts seconds to a human-readable mm:ss or h:mm:ss string.
+ * @param {number} totalSeconds
+ * @returns {string}
+ */
+function formatTime(totalSeconds) {
+    totalSeconds = Math.round(totalSeconds);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    if (h > 0) {
+        return `${h}j ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}d`;
+    }
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 // --- Share Feature ---

@@ -33,6 +33,7 @@ let quizState = {
     answers: {},
     currentQuestionIndex: 0,
     endTime: null,
+    startTime: null,   // Unix ms when quiz session began (NOT restored on resume)
     timerInterval: null,
     sessionToken: null
 };
@@ -48,6 +49,7 @@ function saveQuizProgress() {
         answers: quizState.answers,
         currentQuestionIndex: quizState.currentQuestionIndex,
         endTime: quizState.endTime,
+        startTime: quizState.startTime,   // Persist original start time
         sessionToken: quizState.sessionToken
     };
     try {
@@ -73,6 +75,7 @@ function loadSavedProgress() {
         quizState.answers = data.answers || {};
         quizState.currentQuestionIndex = data.currentQuestionIndex || 0;
         quizState.endTime = data.endTime;
+        quizState.startTime = data.startTime || null;  // Restore original start time
         quizState.sessionToken = data.sessionToken;
         return data;
     } catch (e) {
@@ -142,8 +145,9 @@ async function startQuiz(email, name, isResume = false) {
                 return;
             }
 
-            // Set fresh timer
-            quizState.endTime = new Date().getTime() + (QUIZ_DURATION_MINUTES * 60 * 1000);
+            // Set fresh timer and record start time
+            quizState.startTime = new Date().getTime();
+            quizState.endTime = quizState.startTime + (QUIZ_DURATION_MINUTES * 60 * 1000);
             quizState.answers = {};
             quizState.currentQuestionIndex = 0;
             saveQuizProgress();
@@ -401,13 +405,19 @@ async function finishQuiz(auto = false) {
         finalScore = 0;
     }
 
-    // ---- STEP 2: Submit data to server (via POST) ----
+    // ---- STEP 2: Calculate timeSpent (seconds elapsed since quiz started) ----
+    const nowMs = new Date().getTime();
+    const startMs = quizState.startTime || (nowMs - (QUIZ_DURATION_MINUTES * 60 * 1000)); // fallback
+    const timeSpentSeconds = Math.floor((nowMs - startMs) / 1000);
+
+    // ---- STEP 3: Submit data to server (via POST) ----
     const payload = {
         action: 'submit_quiz',
         email: quizState.email,
         name: quizState.name,
         answers: quizState.answers,
         score: finalScore,
+        timeSpent: timeSpentSeconds,
         sessionToken: quizState.sessionToken || '',
         timestamp: new Date().toISOString()
     };
@@ -458,7 +468,8 @@ async function finishQuiz(auto = false) {
             window.location.href = 'leaderboard.html'
                 + '?email=' + encodeURIComponent(quizState.email)
                 + '&name=' + encodeURIComponent(quizState.name)
-                + '&score=' + finalScore;
+                + '&score=' + finalScore
+                + '&timeSpent=' + timeSpentSeconds;
         }, 1000);
     }, 4000);
 }
