@@ -1,14 +1,11 @@
 /**
- * MERCY 2026 - GOOGLE APPS SCRIPT BACKEND (V5 - SECURITY ENHANCED)
+ * MERCY 2026 - GOOGLE APPS SCRIPT BACKEND (V7 - STABLE)
  * Admin: medtools.mercy@gmail.com
- * 
- * SECURITY FEATURES:
- * - Answer keys stored server-side only
- * - Score calculation on server
- * - Session token validation
  */
 
-// ANSWER KEYS (Server-side only - NOT exposed to client)
+// ============================================================
+// ANSWER KEYS - Server-side only, never sent to client
+// ============================================================
 const ANSWER_KEYS = {
   "1": "C", "2": "B", "3": "C", "4": "C", "5": "B",
   "6": "C", "7": "C", "8": "B", "9": "B", "10": "D",
@@ -18,240 +15,432 @@ const ANSWER_KEYS = {
 };
 
 const TOTAL_QUESTIONS = 25;
-const SECRET_SALT = "MERCY_SECRET_SALT_2026"; // Consistent salt for stateless tokens
+const SECRET_SALT = "MERCY_SECRET_SALT_2026";
+
+// ============================================================
+// ENTRY POINTS
+// ============================================================
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
-  lock.tryLock(10000);
+  lock.tryLock(15000);
   try {
-    var params = JSON.parse(e.postData.contents);
+    var body = e.postData ? e.postData.contents : '{}';
+    var params = JSON.parse(body);
     var action = params.action;
-    
-    // Normalize emails to lowercase globally
     if (params.email) params.email = params.email.toString().toLowerCase().trim();
-    
-    if (action === 'register') return handleRegistration(params);
-    if (action === 'submit_quiz') return handleSubmitQuiz(params);
-    if (action === 'validate_quiz') return handleValidateQuiz(params);
-    
-    return responseJSON({ success: false, message: 'Invalid action' });
+
+    if (action === 'register')     return handleRegistration(params);
+    if (action === 'submit_quiz')  return handleSubmitQuiz(params);
+
+    return responseJSON({ success: false, message: 'Unknown action: ' + action });
   } catch (err) {
-    logToSheet("Error doPost", err.toString());
-    return responseJSON({ success: false, message: "Terjadi kesalahan sistem: " + err.toString() });
+    logToSheet("doPost Error", err.toString());
+    return responseJSON({ success: false, message: "Server error: " + err.toString() });
   } finally {
     lock.releaseLock();
   }
 }
 
 function doGet(e) {
-  var action = e.parameter.action;
-  var email = e.parameter.email ? e.parameter.email.toString().toLowerCase().trim() : "";
-  
-  if (action === 'check_email') return handleCheckEmail(email);
-  if (action === 'get_leaderboard') return handleGetLeaderboard();
-  if (action === 'start_quiz') return handleStartQuiz(email);
-  
-  // For GET validation (if used)
-  if (action === 'validate_quiz') {
-    var params = e.parameter;
-    if (params.email) params.email = params.email.toLowerCase().trim();
-    return handleValidateQuizGet(params);
+  try {
+    var action = e.parameter.action || '';
+    var email  = e.parameter.email
+      ? e.parameter.email.toString().toLowerCase().trim()
+      : '';
+
+    if (action === 'check_email')   return handleCheckEmail(email);
+    if (action === 'get_leaderboard') return handleGetLeaderboard();
+    if (action === 'start_quiz')    return handleStartQuiz(email);
+    if (action === 'validate_quiz') return handleValidateQuizGet(e.parameter);
+
+    return responseJSON({ success: false, message: 'Unknown action: ' + action });
+  } catch (err) {
+    logToSheet("doGet Error", err.toString());
+    return responseJSON({ success: false, message: "Server error: " + err.toString() });
   }
-  
-  return responseJSON({ success: false, message: 'Invalid action' });
 }
+
+// ============================================================
+// REGISTRATION
+// ============================================================
 
 function handleRegistration(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = getOrCreateSheet(ss, 'Registrations');
-  
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(['Timestamp', 'Nama', 'Email', 'Nama Universitas', 'Instagram', 'Semester', 'WhatsApp']);
-  }
-  
-  var email = data.email.toLowerCase().trim();
-  var lastRow = sheet.getLastRow();
-  if (lastRow > 1) {
-    var emails = sheet.getRange(2, 3, lastRow - 1, 1).getValues().flat().map(function(e){ return e.toString().toLowerCase(); }); 
-    if (emails.indexOf(email) !== -1) return responseJSON({ success: false, message: 'Email sudah terdaftar!' });
-  }
-  
-  sheet.appendRow([new Date(), data.nama, email, data.institusi, data.instagram, data.semester, data.whatsapp]);
-  try {
-    sendEmailConfirmation(data);
-    sendAdminNotification(data);
-  } catch (f) { logToSheet("Email Error", f.toString()); }
-  
-  return responseJSON({ success: true, message: 'Registration successful' });
-}
-
-function handleCheckEmail(email) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var regSheet = ss.getSheetByName('Registrations');
-  var quizSheet = ss.getSheetByName('QuizSubmissions');
-  
-  email = email.toLowerCase().trim();
-  var result = { exists: false, submitted: false };
-  
-  if (regSheet && regSheet.getLastRow() >= 2) {
-    var regEmails = regSheet.getRange(2, 3, regSheet.getLastRow() - 1, 1).getValues().flat().map(function(e){ return e.toString().toLowerCase(); });
-    result.exists = regEmails.indexOf(email) !== -1;
-  }
-  
-  if (quizSheet && quizSheet.getLastRow() >= 2) {
-    var quizEmails = quizSheet.getRange(2, 2, quizSheet.getLastRow() - 1, 1).getValues().flat().map(function(e){ return e.toString().toLowerCase(); });
-    result.submitted = quizEmails.indexOf(email) !== -1;
-  }
-  
-  return responseJSON(result);
-}
-
-function handleSubmitQuiz(data) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = getOrCreateSheet(ss, 'QuizSubmissions');
-    var lbSheet = getOrCreateSheet(ss, 'Leaderboard');
-    
-    var email = data.email.toLowerCase().trim();
-    
-    // Check if already submitted first
-    var check = handleCheckEmail(email);
-    if (check.submitted) {
-      return responseJSON({ success: false, message: 'Anda sudah pernah mensubmit quiz ini.' });
+    var sheet = getOrCreateSheet(ss, 'Registrations');
+
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['Timestamp','Nama','Email','Institusi','Instagram','Semester','WhatsApp']);
     }
 
-    // Validate session token with multiple fallback levels
-    if (!validateSessionToken(email, data.sessionToken)) {
-      // Final Fallback: if token fails, but email is registered and not submitted, allow it
-      if (check.exists && !check.submitted) {
-        logToSheet("Security Warning", "Bypassed token validation for registered email: " + email);
+    var email = (data.email || '').toLowerCase().trim();
+    if (!email) return responseJSON({ success: false, message: 'Email kosong.' });
+
+    // Duplicate check
+    var lastRow = sheet.getLastRow();
+    if (lastRow >= 2) {
+      var existing = sheet.getRange(2, 3, lastRow - 1, 1).getValues().flat();
+      for (var k = 0; k < existing.length; k++) {
+        if (existing[k].toString().toLowerCase().trim() === email) {
+          return responseJSON({ success: false, message: 'Email sudah terdaftar.' });
+        }
+      }
+    }
+
+    sheet.appendRow([
+      new Date(), data.nama, email,
+      data.institusi, data.instagram, data.semester, data.whatsapp
+    ]);
+
+    try { sendEmailConfirmation(data); } catch(f) { logToSheet("Email Confirmation", f.toString()); }
+    try { sendAdminNotification(data); } catch(f) { logToSheet("Admin Notification", f.toString()); }
+
+    return responseJSON({ success: true, message: 'Pendaftaran berhasil.' });
+  } catch (err) {
+    logToSheet("handleRegistration Error", err.toString());
+    return responseJSON({ success: false, message: 'Gagal mendaftar: ' + err.toString() });
+  }
+}
+
+// ============================================================
+// CHECK EMAIL (GET)
+// ============================================================
+
+/**
+ * Returns { exists: bool, submitted: bool }
+ * Works both as a doGet handler AND as an internal helper.
+ * When called internally, returns the plain object (not a TextOutput).
+ */
+function handleCheckEmail(email) {
+  try {
+    var result = { exists: false, submitted: false };
+    if (!email) return responseJSON(result);
+
+    email = email.toLowerCase().trim();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // Check Registrations sheet
+    var regSheet = ss.getSheetByName('Registrations');
+    if (regSheet && regSheet.getLastRow() >= 2) {
+      var regRows = regSheet.getRange(2, 3, regSheet.getLastRow() - 1, 1).getValues().flat();
+      for (var i = 0; i < regRows.length; i++) {
+        if (regRows[i].toString().toLowerCase().trim() === email) {
+          result.exists = true;
+          break;
+        }
+      }
+    }
+
+    // Check QuizSubmissions sheet
+    var quizSheet = ss.getSheetByName('QuizSubmissions');
+    if (quizSheet && quizSheet.getLastRow() >= 2) {
+      var quizRows = quizSheet.getRange(2, 2, quizSheet.getLastRow() - 1, 1).getValues().flat();
+      for (var j = 0; j < quizRows.length; j++) {
+        if (quizRows[j].toString().toLowerCase().trim() === email) {
+          result.submitted = true;
+          break;
+        }
+      }
+    }
+
+    return responseJSON(result);
+  } catch (err) {
+    logToSheet("handleCheckEmail Error", err.toString());
+    return responseJSON({ exists: false, submitted: false, error: err.toString() });
+  }
+}
+
+// Internal helper - returns plain object (not ContentService output)
+function checkEmailInternal(email) {
+  var result = { exists: false, submitted: false };
+  if (!email) return result;
+  email = email.toLowerCase().trim();
+
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var regSheet = ss.getSheetByName('Registrations');
+    if (regSheet && regSheet.getLastRow() >= 2) {
+      var regRows = regSheet.getRange(2, 3, regSheet.getLastRow() - 1, 1).getValues().flat();
+      for (var i = 0; i < regRows.length; i++) {
+        if (regRows[i].toString().toLowerCase().trim() === email) {
+          result.exists = true;
+          break;
+        }
+      }
+    }
+    var quizSheet = ss.getSheetByName('QuizSubmissions');
+    if (quizSheet && quizSheet.getLastRow() >= 2) {
+      var quizRows = quizSheet.getRange(2, 2, quizSheet.getLastRow() - 1, 1).getValues().flat();
+      for (var j = 0; j < quizRows.length; j++) {
+        if (quizRows[j].toString().toLowerCase().trim() === email) {
+          result.submitted = true;
+          break;
+        }
+      }
+    }
+  } catch (err) {
+    logToSheet("checkEmailInternal Error", err.toString());
+  }
+  return result;
+}
+
+// ============================================================
+// START QUIZ (GET) - issues session token
+// ============================================================
+
+function handleStartQuiz(email) {
+  if (!email) return responseJSON({ success: false, message: 'Email wajib diisi.' });
+  email = email.toLowerCase().trim();
+
+  // Admin bypass
+  if (email === 'medtools.mercy@gmail.com') {
+    var token = generateStatelessToken(email);
+    return responseJSON({ success: true, sessionToken: token });
+  }
+
+  var status = checkEmailInternal(email);
+
+  if (!status.exists) {
+    return responseJSON({ success: false, message: 'Email belum terdaftar di sistem Mercy. Silakan daftar terlebih dahulu.' });
+  }
+  if (status.submitted) {
+    return responseJSON({ success: false, message: 'Peserta ini sudah pernah mensubmit kuis. Setiap peserta hanya diperbolehkan 1 kali submit.' });
+  }
+
+  var sessionToken = generateStatelessToken(email);
+  try {
+    var cache = CacheService.getScriptCache();
+    cache.put('session_' + email, sessionToken, 21600); // 6 hours
+  } catch (ce) {
+    logToSheet("Cache Write Error", ce.toString());
+  }
+
+  return responseJSON({ success: true, sessionToken: sessionToken });
+}
+
+// ============================================================
+// VALIDATE QUIZ (GET) - calculates score from answers
+// ============================================================
+
+function handleValidateQuizGet(params) {
+  try {
+    var email = params.email ? params.email.toLowerCase().trim() : '';
+    var answers = {};
+    var sessionToken = params.sessionToken || '';
+
+    if (!email) return responseJSON({ success: false, message: 'Email tidak ditemukan.' });
+
+    try {
+      answers = JSON.parse(decodeURIComponent(params.answers || '{}'));
+    } catch (parseErr) {
+      return responseJSON({ success: false, message: 'Format jawaban tidak valid.' });
+    }
+
+    // Validate token - but be lenient: if email exists + not submitted, proceed
+    var tokenValid = validateSessionToken(email, sessionToken);
+    if (!tokenValid) {
+      if (email === 'medtools.mercy@gmail.com') {
+        tokenValid = true; // Admin bypass
+      } else {
+        var status = checkEmailInternal(email);
+        if (status.exists && !status.submitted) {
+          tokenValid = true; // Graceful fallback for registered users
+          logToSheet("Token Bypass", "Validate fallback for: " + email);
+        }
+      }
+    }
+
+    if (!tokenValid) {
+      return responseJSON({ success: false, message: 'Sesi tidak valid atau sudah kadaluarsa. Silakan login kembali.' });
+    }
+
+    var score = calculateScore(answers);
+    return responseJSON({ success: true, score: score });
+  } catch (err) {
+    logToSheet("handleValidateQuizGet Error", err.toString());
+    return responseJSON({ success: false, message: 'Gagal memvalidasi: ' + err.toString() });
+  }
+}
+
+// ============================================================
+// SUBMIT QUIZ (POST)
+// ============================================================
+
+function handleSubmitQuiz(data) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(20000);
+  try {
+    var email = (data.email || '').toLowerCase().trim();
+    if (!email) return responseJSON({ success: false, message: 'Email tidak ditemukan dalam data.' });
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet   = getOrCreateSheet(ss, 'QuizSubmissions');
+    var lbSheet = getOrCreateSheet(ss, 'Leaderboard');
+
+    // Create headers if needed
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['Timestamp','Email','Answers','Score','TimeSpent','Name']);
+    }
+    if (lbSheet.getLastRow() === 0) {
+      lbSheet.appendRow(['Name','Score','Timestamp','TimeSpent','Email']);
+    }
+
+    // --- Prevent duplicate submissions ---
+    var status = checkEmailInternal(email);
+    if (status.submitted && email !== 'medtools.mercy@gmail.com') {
+      return responseJSON({ success: false, message: 'Email ini sudah pernah mensubmit kuis.' });
+    }
+
+    // --- Token validation (lenient for registered users) ---
+    var tokenValid = validateSessionToken(email, data.sessionToken || '');
+    if (!tokenValid && email !== 'medtools.mercy@gmail.com') {
+      if (status.exists && !status.submitted) {
+        logToSheet("Submit Token Bypass", email);
       } else {
         return responseJSON({ success: false, message: 'Sesi tidak valid. Silakan login kembali.' });
       }
     }
-    
-    var serverCalculatedScore = calculateScore(data.answers);
-    var timeSpent = data.timeSpent || 999999;
-    
-    sheet.appendRow([new Date(), email, JSON.stringify(data.answers), serverCalculatedScore, timeSpent]);
-    lbSheet.appendRow([data.name, serverCalculatedScore, new Date().toISOString(), timeSpent]);
-    
-    // Invalidate old cache token
+
+    // --- Always recalculate score on server ---
+    var answers = data.answers || {};
+    if (typeof answers === 'string') {
+      try { answers = JSON.parse(answers); } catch(e) { answers = {}; }
+    }
+
+    var finalScore = calculateScore(answers);
+    var timestamp  = new Date();
+
+    // Write to QuizSubmissions
+    sheet.appendRow([
+      timestamp,
+      email,
+      JSON.stringify(answers),
+      finalScore,
+      data.timeSpent || 0,
+      data.name || 'Peserta'
+    ]);
+
+    // Write to Leaderboard
+    lbSheet.appendRow([
+      data.name || 'Peserta',
+      finalScore,
+      timestamp.toISOString(),
+      data.timeSpent || 0,
+      email
+    ]);
+
+    // Invalidate cache token
     invalidateSessionToken(email);
-    
-    return responseJSON({ success: true, verifiedScore: serverCalculatedScore, score: serverCalculatedScore });
-  } catch (e) {
-    logToSheet("Submit Error", e.toString());
-    return responseJSON({ success: false, message: "Gagal submit: " + e.toString() });
+
+    return responseJSON({
+      success: true,
+      score: finalScore,
+      message: 'Submit berhasil!'
+    });
+
+  } catch (err) {
+    logToSheet("handleSubmitQuiz Error", err.toString());
+    return responseJSON({ success: false, message: 'Gagal menyimpan hasil: ' + err.toString() });
+  } finally {
+    lock.releaseLock();
   }
 }
 
-// --- SECURITY FUNCTIONS ---
+// ============================================================
+// LEADERBOARD (GET)
+// ============================================================
 
-function handleStartQuiz(email) {
-  if (!email) return responseJSON({ success: false, message: 'Email required' });
-  email = email.toLowerCase().trim();
-  
-  // Check if already submitted
-  var check = handleCheckEmail(email);
-  if (check.submitted) return responseJSON({ success: false, message: 'Anda sudah mengerjakan quiz ini sebelumnya.' });
-  
-  // Check if registered
-  if (!check.exists) return responseJSON({ success: false, message: 'Email belum terdaftar.' });
-
-  // Use stateless token
-  var sessionToken = generateStatelessToken(email);
-  var cache = CacheService.getScriptCache();
-  cache.put('session_' + email, sessionToken, 21600); // 6 hours
-  
-  return responseJSON({ success: true, sessionToken: sessionToken });
-}
-
-function handleValidateQuiz(data) {
-  var email = data.email.toLowerCase().trim();
-  
-  // Check if session token is valid
-  if (!validateSessionToken(email, data.sessionToken)) {
-    // Basic verification fallback
-    var check = handleCheckEmail(email);
-    if (check.submitted) {
-      return responseJSON({ success: false, message: 'Anda sudah mensubmit quiz ini.' });
-    }
-    if (!check.exists) {
-      return responseJSON({ success: false, message: 'Email tidak terdaftar atau sesi berakhir.' });
-    }
-  }
-  
-  var score = calculateScore(data.answers);
-  return responseJSON({ 
-    success: true, 
-    score: score,
-    verifiedScore: score
-  });
-}
-
-function handleValidateQuizGet(params) {
-  var email = params.email.toLowerCase().trim();
-  var answers = {};
+function handleGetLeaderboard() {
   try {
-    answers = JSON.parse(params.answers);
-  } catch (e) {
-    return responseJSON({ success: false, message: 'Invalid answers format' });
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Leaderboard');
+    if (!sheet || sheet.getLastRow() < 2) return responseJSON([]);
+
+    var rows = sheet.getLastRow() - 1;
+    var data = sheet.getRange(2, 1, rows, 5).getValues();
+
+    var leaderboard = data.map(function(row) {
+      return {
+        name:      row[0] || 'Peserta',
+        score:     parseFloat(row[1]) || 0,
+        time:      row[2] || '',
+        timeSpent: parseFloat(row[3]) || 999999,
+        email:     (row[4] || '').toString().toLowerCase().trim()
+      };
+    });
+
+    leaderboard.sort(function(a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.timeSpent !== b.timeSpent) return a.timeSpent - b.timeSpent;
+      return new Date(a.time) - new Date(b.time);
+    });
+
+    return responseJSON(leaderboard);
+  } catch (err) {
+    logToSheet("handleGetLeaderboard Error", err.toString());
+    return responseJSON([]);
   }
-  
-  if (!validateSessionToken(email, params.sessionToken)) {
-    return responseJSON({ success: false, message: 'Sesi tidak valid.' });
-  }
-  
-  var score = calculateScore(answers);
-  return responseJSON({ success: true, score: score });
 }
 
-// Stateless token generation
+// ============================================================
+// TOKEN HELPERS
+// ============================================================
+
 function generateStatelessToken(email) {
-  var raw = email + SECRET_SALT;
-  var signature = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw);
-  return signature.map(function(b){ return (b < 0 ? b + 256 : b).toString(16).padStart(2, '0'); }).join('');
+  var raw = email.toLowerCase().trim() + SECRET_SALT;
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw);
+  return bytes.map(function(b) {
+    return (b < 0 ? b + 256 : b).toString(16).padStart(2, '0');
+  }).join('');
 }
 
 function validateSessionToken(email, token) {
   if (!email || !token) return false;
   email = email.toLowerCase().trim();
-  
-  // 1. Check stateless token (Match current logic)
+
+  // Check stateless token first (always works, no cache needed)
   if (token === generateStatelessToken(email)) return true;
-  
-  // 2. Fallback to CacheService (Backward compatibility for ongoing sessions)
-  var cache = CacheService.getScriptCache();
-  var storedToken = cache.get('session_' + email);
-  if (storedToken === token) return true;
-  
+
+  // Check cache (backward compat)
+  try {
+    var cache = CacheService.getScriptCache();
+    var cached = cache.get('session_' + email);
+    if (cached && cached === token) return true;
+  } catch(e) {}
+
   return false;
 }
 
 function invalidateSessionToken(email) {
-  var cache = CacheService.getScriptCache();
-  cache.remove('session_' + email.toLowerCase().trim());
+  try {
+    var cache = CacheService.getScriptCache();
+    cache.remove('session_' + email.toLowerCase().trim());
+  } catch(e) {}
 }
+
+// ============================================================
+// SCORE CALCULATION
+// ============================================================
 
 function calculateScore(answers) {
   if (!answers || typeof answers !== 'object') return 0;
-  var correctCount = 0;
-  for (var questionId in ANSWER_KEYS) {
-    if (answers[questionId] === ANSWER_KEYS[questionId]) {
-      correctCount++;
+  var correct = 0;
+  for (var qid in ANSWER_KEYS) {
+    if (String(answers[qid]) === String(ANSWER_KEYS[qid])) {
+      correct++;
     }
   }
-  return correctCount * 4;
+  return correct * 4;
 }
 
-// --- UTILITY FUNCTIONS ---
+// ============================================================
+// UTILITY
+// ============================================================
 
 function getOrCreateSheet(ss, name) {
   var sheet = ss.getSheetByName(name);
-  if (!sheet) {
-    sheet = ss.insertSheet(name);
-  }
+  if (!sheet) sheet = ss.insertSheet(name);
   return sheet;
 }
 
@@ -260,169 +449,67 @@ function logToSheet(type, message) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getOrCreateSheet(ss, 'SystemLogs');
     sheet.appendRow([new Date(), type, message]);
-  } catch (e) {}
-}
-
-function handleGetLeaderboard() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('Leaderboard');
-  if (!sheet || sheet.getLastRow() < 2) return responseJSON([]);
-  
-  var rows = sheet.getLastRow() - 1;
-  var data = sheet.getRange(2, 1, rows, 4).getValues();
-  var leaderboard = data.map(function(row) {
-    return { name: row[0], score: row[1], time: row[2], timeSpent: row[3] || 999999 };
-  });
-  
-  leaderboard.sort(function(a, b) {
-    if (b.score !== a.score) return b.score - a.score;
-    if (a.timeSpent !== b.timeSpent) return a.timeSpent - b.timeSpent;
-    return new Date(a.time) - new Date(b.time);
-  });
-  
-  return responseJSON(leaderboard);
+  } catch(e) {}
 }
 
 function responseJSON(data) {
-  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-
-// --- EMAIL FUNCTIONS ---
+// ============================================================
+// EMAIL FUNCTIONS
+// ============================================================
 
 function sendEmailConfirmation(data) {
-  if (!data || !data.email) {
-    Logger.log("Info: Fungsi sendEmailConfirmation dihentikan karena tidak ada data.");
-    return;
-  }
-  
-  var subject = "Pendaftaran INC 2026 BERHASIL! 🎉";
-  var htmlTemplate = getEmailTemplate();
-  
-  // Replace Placeholders
-  var htmlBody = htmlTemplate
-    .replace(/{{nama}}/g, data.nama)
-    .replace(/{{email}}/g, data.email)
-    .replace(/{{institusi}}/g, data.institusi)
-    .replace(/{{semester}}/g, data.semester)
-    .replace(/{{whatsapp}}/g, data.whatsapp);
+  if (!data || !data.email) return;
+  var htmlBody = getEmailTemplate()
+    .replace(/{{nama}}/g,      data.nama      || '')
+    .replace(/{{email}}/g,     data.email     || '')
+    .replace(/{{institusi}}/g, data.institusi || '')
+    .replace(/{{semester}}/g,  data.semester  || '')
+    .replace(/{{whatsapp}}/g,  data.whatsapp  || '');
 
   MailApp.sendEmail({
     to: data.email,
-    subject: subject,
+    subject: 'Pendaftaran INC 2026 BERHASIL! 🎉',
     htmlBody: htmlBody
   });
 }
 
 function getEmailTemplate() {
-  return `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-        table { border-collapse: collapse !important; }
-        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; font-family: 'Poppins', Helvetica, Arial, sans-serif; background-color: #F8F9FA; }
-        .email-container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .header { background: linear-gradient(135deg, #193c76 0%, #3B82F6 100%); padding: 40px 20px; text-align: center; color: #FFFFFF; }
-        .content { padding: 40px 30px; color: #6B7280; line-height: 1.6; }
-        .footer { background-color: #F8F9FA; padding: 30px; text-align: center; font-size: 14px; color: #9CA3AF; }
-        .title { font-size: 24px; font-weight: 800; margin: 0 0 10px; color: #FFFFFF; }
-        .subtitle { font-size: 16px; margin: 0; opacity: 0.9; }
-        .user-data { background-color: #F0F9FF; border: 1px solid #DBEAFE; border-radius: 12px; padding: 25px; margin: 30px 0; }
-        .data-item { margin-bottom: 15px; border-bottom: 1px solid #DBEAFE; padding-bottom: 10px; }
-        .data-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .label { font-weight: 600; color: #1E3A8A; font-size: 13px; text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .value { color: #374151; font-size: 16px; }
-        .btn { display: inline-block; padding: 14px 28px; border-radius: 8px; font-weight: 600; text-decoration: none; text-align: center; margin: 10px 5px; font-size: 15px; }
-        .btn-primary { background: linear-gradient(135deg, #193c76 0%, #3B82F6 100%); color: #FFFFFF !important; }
-        .btn-whatsapp { background-color: #25D366; color: #FFFFFF !important; }
-        .warning-box { background-color: #EFF6FF; border-left: 4px solid #3B82F6; padding: 20px; border-radius: 8px; margin: 30px 0; color: #1E3A8A; }
-        .warning-title { font-weight: 700; margin-bottom: 8px; display: block; font-size: 15px; }
-    </style>
-</head>
-<body>
-    <div style="padding: 20px 0;">
-        <div class="email-container">
-            <div class="header">
-                <h1 class="title">KONFIRMASI PENDAFTARAN</h1>
-                <p class="subtitle">Iseng Ngetest Competition (INC) Mercy 2026</p>
-            </div>
-            <div class="content">
-                <p style="font-size: 18px; color: #1E3A8A; font-weight: 600;">Halo, {{nama}}!</p>
-                <p>Selamat! Pendaftaran kamu untuk <strong>INC Mercy 2026</strong> telah berhasil kami terima. Berikut adalah rincian data pendaftaran kamu:</p>
-                <div class="user-data">
-                    <div class="data-item"><span class="label">Nama Lengkap</span><span class="value">{{nama}}</span></div>
-                    <div class="data-item"><span class="label">ID Email (Login)</span><span class="value">{{email}}</span></div>
-                    <div class="data-item"><span class="label">Universitas</span><span class="value">{{institusi}}</span></div>
-                    <div class="data-item"><span class="label">Semester</span><span class="value">{{semester}}</span></div>
-                    <div class="data-item" style="border-bottom: none;"><span class="label">Nomor WhatsApp</span><span class="value">{{whatsapp}}</span></div>
-                </div>
-                <div class="warning-box">
-                    <span class="warning-title">⚠️ PENTING: AKSES PORTAL</span>
-                    <p style="margin: 0; font-size: 14px;">Untuk masuk ke Portal INC, kamu wajib menggunakan <strong>Alamat Email</strong> di atas. Email ini bersifat rahasia, jangan berikan kepada siapapun untuk mencegah orang lain login atas nama kamu.</p>
-                </div>
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="https://mercy-ashen.vercel.app/quiz.html" class="btn btn-primary" style="color: #FFFFFF;">MASUK KE PORTAL INC</a>
-                    <a href="https://chat.whatsapp.com/F4yp7SWVeoeEFv3UDYAtty" class="btn btn-whatsapp" style="color: #FFFFFF;">JOIN GRUP WHATSAPP</a>
-                </div>
-                <div style="margin-top: 40px; padding-top: 20px; text-align: center;">
-                    <p style="font-size: 16px; font-weight: 600; color: #1E3A8A;">Sampai Jumpa di Kompetisi, {{nama}}!</p>
-                </div>
-                <div style="margin-top: 30px; color: #6B7280; font-size: 14px;">
-                    <p style="margin: 0;">Best Regards,</p>
-                    <p style="margin: 0; font-weight: 700; color: #1E3A8A;">Gilang - Mercy Project Director.</p>
-                </div>
-            </div>
-            <div class="footer">
-                <p style="margin-bottom: 10px;">&copy; 2026 Medtools Academy. All Rights Reserved.</p>
-            </div>
-        </div>
-    </div>
-</body>
-</html>`;
+  return '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{font-family:Poppins,Arial,sans-serif;background:#F8F9FA;margin:0;padding:20px}.wrap{max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden}.head{background:linear-gradient(135deg,#193c76,#3B82F6);padding:40px 20px;text-align:center;color:#fff}.head h1{margin:0 0 8px;font-size:24px;font-weight:800}.head p{margin:0;opacity:.9}.body{padding:40px 30px;color:#6B7280}.info-box{background:#F0F9FF;border:1px solid #DBEAFE;border-radius:12px;padding:25px;margin:24px 0}.row{margin-bottom:14px;border-bottom:1px solid #DBEAFE;padding-bottom:10px}.row:last-child{border-bottom:none;margin-bottom:0}.label{display:block;font-weight:600;color:#1E3A8A;font-size:12px;text-transform:uppercase;margin-bottom:4px}.value{color:#374151;font-size:15px}.warn{background:#EFF6FF;border-left:4px solid #3B82F6;padding:18px;border-radius:8px;margin:24px 0;color:#1E3A8A}.cta{text-align:center;margin-top:30px}.btn{display:inline-block;padding:13px 26px;border-radius:8px;font-weight:600;text-decoration:none;margin:6px 4px;font-size:15px;color:#fff}.btn-blue{background:linear-gradient(135deg,#193c76,#3B82F6)}.btn-green{background:#25D366}.foot{background:#F8F9FA;padding:24px;text-align:center;font-size:13px;color:#9CA3AF}</style></head><body><div class="wrap"><div class="head"><h1>KONFIRMASI PENDAFTARAN</h1><p>Iseng Ngetest Competition (INC) Mercy 2026</p></div><div class="body"><p style="font-size:18px;color:#1E3A8A;font-weight:600">Halo, {{nama}}!</p><p>Selamat! Pendaftaran kamu untuk <strong>INC Mercy 2026</strong> telah berhasil.</p><div class="info-box"><div class="row"><span class="label">Nama Lengkap</span><span class="value">{{nama}}</span></div><div class="row"><span class="label">Email (untuk login)</span><span class="value">{{email}}</span></div><div class="row"><span class="label">Universitas</span><span class="value">{{institusi}}</span></div><div class="row"><span class="label">Semester</span><span class="value">{{semester}}</span></div><div class="row"><span class="label">WhatsApp</span><span class="value">{{whatsapp}}</span></div></div><div class="warn"><strong>⚠️ PENTING:</strong> Gunakan email <strong>{{email}}</strong> untuk masuk ke Portal INC. Jangan bagikan ke orang lain.</div><div class="cta"><a href="https://mercy-ashen.vercel.app/quiz.html" class="btn btn-blue">MASUK KE PORTAL INC</a><a href="https://chat.whatsapp.com/F4yp7SWVeoeEFv3UDYAtty" class="btn btn-green">JOIN GRUP WHATSAPP</a></div><p style="margin-top:36px;font-size:16px;font-weight:600;color:#1E3A8A;text-align:center">Sampai Jumpa, {{nama}}!</p><p style="color:#6B7280;font-size:14px">Best Regards,<br><strong style="color:#1E3A8A">Gilang – Mercy Project Director</strong></p></div><div class="foot">&copy; 2026 Medtools Academy. All Rights Reserved.</div></div></body></html>';
 }
 
 function sendAdminNotification(data) {
-  if (!data || !data.nama) {
-    Logger.log("Info: Fungsi sendAdminNotification dihentikan karena tidak ada data. Gunakan 'testSystem' untuk mengetes.");
-    return;
-  }
-  var adminEmail = "medtools.mercy@gmail.com"; 
-  var subject = "[NEW REGISTRATION] INC Mercy 2026";
-  var body = "Peserta Baru Telah Mendaftar!\n\n" +
-             "Nama: " + data.nama + "\n" +
-             "Email: " + data.email + "\n" +
-             "Asal Kampus: " + data.institusi + "\n" +
-             "Instagram: " + data.instagram + "\n" +
-             "Semester: " + data.semester + "\n" +
-             "WhatsApp: " + data.whatsapp + "\n\n" +
-             "Cek database Spreadsheet untuk detailnya.";
-  MailApp.sendEmail(adminEmail, subject, body);
+  if (!data || !data.nama) return;
+  MailApp.sendEmail(
+    'medtools.mercy@gmail.com',
+    '[NEW REGISTRATION] INC Mercy 2026',
+    'Peserta Baru:\n\nNama: '     + data.nama +
+    '\nEmail: '    + data.email +
+    '\nKampus: '   + data.institusi +
+    '\nInstagram: ' + data.instagram +
+    '\nSemester: ' + data.semester +
+    '\nWA: '       + data.whatsapp
+  );
 }
 
-// --- TESTER FUNCTION (PILIH INI LALU KLIK RUN) ---
+// ============================================================
+// TEST FUNCTION (Run manually in Apps Script Editor)
+// ============================================================
 function testSystem() {
-  var dummyData = {
-    nama: "Gilang (Test Admin)",
-    email: "medtools.mercy@gmail.com",
-    institusi: "Universitas Medtools",
-    instagram: "medtools.id",
-    semester: "Semester 5",
-    whatsapp: "08123456789"
+  var dummy = {
+    nama: 'Gilang (Test)', email: 'medtools.mercy@gmail.com',
+    institusi: 'Universitas Medtools', instagram: 'medtools.id',
+    semester: '5', whatsapp: '08123456789'
   };
-  Logger.log("Memulai pengetesan email...");
   try {
-    sendAdminNotification(dummyData);
-    Logger.log("Email Notifikasi Admin BERHASIL dikirim ke: medtools.mercy@gmail.com");
-    sendEmailConfirmation(dummyData);
-    Logger.log("Email Konfirmasi Peserta BERHASIL dikirim ke: " + dummyData.email);
-    Logger.log("Tes Selesai! Silakan cek inbox email Anda.");
+    sendAdminNotification(dummy);
+    sendEmailConfirmation(dummy);
+    Logger.log('Test selesai. Cek inbox.');
   } catch(e) {
-    Logger.log("Error saat tes: " + e.toString());
+    Logger.log('Error: ' + e.toString());
   }
 }
-
