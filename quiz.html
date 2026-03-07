@@ -82,7 +82,7 @@
 
             <div class="sidebar-info">
                 <div>Terjawab: <span id="answeredCount" class="font-bold">0</span>/<span
-                        id="totalCountDisplay">25</span></div>
+                        id="totalCountDisplay">50</span></div>
             </div>
 
             <div class="question-nav" id="questionNav">
@@ -335,7 +335,7 @@
                 const observer = new MutationObserver(() => {
                     const countText = answeredCountEl.textContent.trim();
                     const current = parseInt(countText);
-                    let total = 25;
+                    let total = 50;
 
                     if (window.quizState && window.quizState.questions) {
                         total = window.quizState.questions.length;
