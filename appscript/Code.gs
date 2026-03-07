@@ -436,7 +436,8 @@ function calculateScore(answers) {
       correct++;
     }
   }
-  return correct * 4;
+  // 50 soal x 2 poin = skor maks 100
+  return correct * 2;
 }
 
 // ============================================================
